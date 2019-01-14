@@ -1,4 +1,5 @@
 #!/bin/bash
+#to be sourced from run_level1.sh
 echo '' > $FILE
 cat >> $FILE <<EOF
 
@@ -161,8 +162,8 @@ set fmri(evs_real) 8
 set fmri(evs_vox) 0
 
 # Number of contrasts
-set fmri(ncon_orig) 1
-set fmri(ncon_real) 1
+set fmri(ncon_orig) 4
+set fmri(ncon_real) 4
 
 # Number of F-tests
 set fmri(nftests_orig) 0
