@@ -35,7 +35,7 @@
 # Replace "<your_UCL_id>" with your UCL user ID :)
 #$ -wd /home/ucjtbob/Scratch/narps_level2_logs
 # make n jobs run with different numbers
-#$ -t 1
+#$ -t 2-108
 
 #range should be 1-108 to run all subjects
 
@@ -78,10 +78,10 @@ echo $NUMRUNS runs
 
 #Change this output folder depending on which level you are running.
 #This is where the FEAT output will go.
-OUTPUT=\"${OUTPUTDIR}/narps_level2/sub${SUBJ}\"
+OUTPUT=\"${OUTPUTDIR}/sub${SUBJ}\"
 
 #FSF file output directory.
-FILE=${OUTPUTDIR}/narps_fsf/sub${SUBJ}.fsf
+FILE=${parent_dir}/narps_fsf/sub${SUBJ}.fsf
 
 #Define the input FEAT directories.
 FEATDIR1=${parent_dir}/narps_level1/sub${SUBJ}_run01.feat
@@ -90,7 +90,7 @@ FEATDIR3=${parent_dir}/narps_level1/sub${SUBJ}_run03.feat
 FEATDIR4=${parent_dir}/narps_level1/sub${SUBJ}_run04.feat
 
 #Also define where the structural template we are using is. Not really needed for level2.
-STRUCTREF=\"${OUTPUTDIR}/MNI152_T1_1mm_brain\" #if on myriad
+STRUCTREF=\"${parent_dir}/MNI152_T1_1mm_brain\" #if on myriad
 
 #Create the .fsf file.
 source /home/ucjtbob/narps_scripts/narps_level2_fsf_maker.sh
