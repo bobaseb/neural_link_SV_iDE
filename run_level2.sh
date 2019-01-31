@@ -25,7 +25,7 @@
 #$ -pe smp 1
 
 # 3. Set the name of the job.
-#$ -N narps_level2
+#$ -N narps_level2_again
 
 # 6. Set the working directory to somewhere in your scratch space.  This is
 # a necessary step with the upgraded software stack as compute nodes cannot
@@ -35,7 +35,7 @@
 # Replace "<your_UCL_id>" with your UCL user ID :)
 #$ -wd /home/ucjtbob/Scratch/narps_level2_logs
 # make n jobs run with different numbers
-#$ -t 2-108
+#$ -t 1-108
 
 #range should be 1-108 to run all subjects
 
@@ -76,9 +76,20 @@ echo subject $SUBJ
 NUMRUNS=4
 echo $NUMRUNS runs
 
+orig_evs=3 #how many EVs in level 1 model?
+echo $orig_evs EVs
+
 #Change this output folder depending on which level you are running.
 #This is where the FEAT output will go.
 OUTPUT=\"${OUTPUTDIR}/sub${SUBJ}\"
+
+if [ -d "${OUTPUTDIR}/sub${SUBJ}.gfeat/cope${orig_evs}.feat" ]; then
+  echo cope ${orig_evs} directory exists
+  exit 1
+else
+  echo cope ${orig_evs} directory doesnt exist
+  rm -R ${OUTPUTDIR}/sub${SUBJ}.gfeat
+fi
 
 #FSF file output directory.
 FILE=${parent_dir}/narps_fsf/sub${SUBJ}.fsf

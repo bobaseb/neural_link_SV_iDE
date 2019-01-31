@@ -26,7 +26,7 @@
 #$ -pe smp 1
 
 # 3. Set the name of the job.
-#$ -N narps_level1_run4
+#$ -N narps_level1_rerun3
 
 # 6. Set the working directory to somewhere in your scratch space.  This is
 # a necessary step with the upgraded software stack as compute nodes cannot
@@ -36,7 +36,7 @@
 # Replace "<your_UCL_id>" with your UCL user ID :)
 #$ -wd /home/ucjtbob/Scratch/narps_level1_logs
 # make n jobs run with different numbers
-#$ -t 1-108
+#$ -t 48
 
 #range should be 1-108 to run all subjects
 
@@ -82,7 +82,7 @@ echo subject $SUBJ
 #for RUN in 01 #02 03 04
 #do
 
-RUN=04
+RUN=03
 echo run $RUN
 
 #Remove the trailing zeros for some of the files below.
@@ -92,6 +92,14 @@ RUNr=$(echo ${RUN} | sed 's/^0*//')
 #Change this output folder depending on which level you are running.
 #This is where the FEAT output will go.
 OUTPUT=\"${OUTPUTDIR}/narps_level1/sub${SUBJ}_run${RUN}\"
+
+if [ -d "${OUTPUTDIR}/narps_level1/sub${SUBJ}_run${RUN}.feat/stats" ]; then
+  echo 'stats directory exists'
+  exit 1
+else
+  echo 'stats directory doesnt exist'
+  rm -R ${OUTPUTDIR}/narps_level1/sub${SUBJ}_run${RUN}.feat
+fi
 
 #FSF file output directory.
 #FILE=${TMPDIR}/sub${SUBJ}_run${RUN}.fsf
@@ -105,12 +113,21 @@ INPUTIMGr=${FMRIDIR}/sub-${SUBJ}/func/sub-${SUBJ}_task-MGT_run-${RUN}_bold_space
 STRUCTREF=\"${OUTPUTDIR}/MNI152_T1_1mm_brain\" #if on myriad
 #STRUCTREF=\"/usr/local/fsl/data/standard/MNI152_T1_1mm_brain\" #example local directory
 
+#EV num
+orig_evs=3
+real_evs=6 #2x for temporal derivatives
+contrasts=3
+
 #Setup some specific EVs.
 CONFOUND_EVS=\"${FMRIDIR}/sub-${SUBJ}/func/sub-${SUBJ}_task-MGT_run-${RUN}_bold_confounds_reduced.txt\"
 INTERCEPT_EV=\"${BEHAVIORDIR}/intercept/${SUBJr}_${RUNr}_intercept.txt\"
 GAINS_EV=\"${BEHAVIORDIR}/mc_gain/${SUBJr}_${RUNr}_mc_gain.txt\"
 LOSSES_EV=\"${BEHAVIORDIR}/mc_loss/${SUBJr}_${RUNr}_mc_loss.txt\"
 ENTROPY_EV=\"${BEHAVIORDIR}/mc_entropy/${SUBJr}_${RUNr}_mc_entropy.txt\"
+
+#Setup the current model
+ev_names=(Intercept Gains Losses)
+ev_paths=(${INTERCEPT_EV} ${GAINS_EV} ${LOSSES_EV})
 
 #Retrieve the number of volumes.
 VOLS=$(fslnvols ${INPUTIMGr})

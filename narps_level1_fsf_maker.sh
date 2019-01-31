@@ -157,13 +157,13 @@ set fmri(mixed_yn) 2
 set fmri(randomisePermutations) 5000
 
 # Number of EVs
-set fmri(evs_orig) 4
-set fmri(evs_real) 8
+set fmri(evs_orig) ${orig_evs}
+set fmri(evs_real) ${real_evs}
 set fmri(evs_vox) 0
 
 # Number of contrasts
-set fmri(ncon_orig) 4
-set fmri(ncon_real) 4
+set fmri(ncon_orig) ${contrasts}
+set fmri(ncon_real) ${contrasts}
 
 # Number of F-tests
 set fmri(nftests_orig) 0
@@ -285,19 +285,26 @@ set fmri(confoundevs) 1
 # Confound EVs text file for analysis 1
 set confoundev_files(1) ${CONFOUND_EVS}
 
-# EV 1 title
-set fmri(evtitle1) "Intercept"
+EOF
 
-# Basic waveform shape (EV 1)
+#Setup EVs loop
+for pre_ev_num in ${!ev_names[@]}
+do
+ev_num=$( expr $pre_ev_num + 1 )
+cat >> $FILE <<EOF
+# EV ${ev_num} title
+set fmri(evtitle${ev_num}) "${ev_names[$pre_ev_num]}"
+
+# Basic waveform shape (EV ${ev_num})
 # 0 : Square
 # 1 : Sinusoid
 # 2 : Custom (1 entry per volume)
 # 3 : Custom (3 column format)
 # 4 : Interaction
 # 10 : Empty (all zeros)
-set fmri(shape1) 3
+set fmri(shape${ev_num}) 3
 
-# Convolution (EV 1)
+# Convolution (EV ${ev_num})
 # 0 : None
 # 1 : Gaussian
 # 2 : Gamma
@@ -305,181 +312,35 @@ set fmri(shape1) 3
 # 4 : Gamma basis functions
 # 5 : Sine basis functions
 # 6 : FIR basis functions
-set fmri(convolve1) 3
+set fmri(convolve${ev_num}) 3
 
-# Convolve phase (EV 1)
-set fmri(convolve_phase1) 0
+# Convolve phase (EV ${ev_num})
+set fmri(convolve_phase${ev_num}) 0
 
-# Apply temporal filtering (EV 1)
-set fmri(tempfilt_yn1) 1
+# Apply temporal filtering (EV ${ev_num})
+set fmri(tempfilt_yn${ev_num}) 1
 
-# Add temporal derivative (EV 1)
-set fmri(deriv_yn1) 1
+# Add temporal derivative (EV ${ev_num})
+set fmri(deriv_yn${ev_num}) 1
 
-# Custom EV file (EV 1)
-set fmri(custom1) ${INTERCEPT_EV}
+# Custom EV file (EV ${ev_num})
+set fmri(custom${ev_num}) ${ev_paths[$pre_ev_num]}
 
-# Orthogonalise EV 1 wrt EV 0
-set fmri(ortho1.0) 0
+EOF
 
-# Orthogonalise EV 1 wrt EV 1
-set fmri(ortho1.1) 0
+for (( i=0; i<=${orig_evs}; i++ ))
+do
+cat >> $FILE <<EOF
+# Orthogonalise EV ${ev_num} wrt EV ${i}
+set fmri(ortho${ev_num}.${i}) 0
 
-# Orthogonalise EV 1 wrt EV 2
-set fmri(ortho1.2) 0
+EOF
+done
 
-# Orthogonalise EV 1 wrt EV 3
-set fmri(ortho1.3) 0
+done
 
-# Orthogonalise EV 1 wrt EV 4
-set fmri(ortho1.4) 0
-
-# EV 2 title
-set fmri(evtitle2) "Gains"
-
-# Basic waveform shape (EV 2)
-# 0 : Square
-# 1 : Sinusoid
-# 2 : Custom (1 entry per volume)
-# 3 : Custom (3 column format)
-# 4 : Interaction
-# 10 : Empty (all zeros)
-set fmri(shape2) 3
-
-# Convolution (EV 2)
-# 0 : None
-# 1 : Gaussian
-# 2 : Gamma
-# 3 : Double-Gamma HRF
-# 4 : Gamma basis functions
-# 5 : Sine basis functions
-# 6 : FIR basis functions
-set fmri(convolve2) 3
-
-# Convolve phase (EV 2)
-set fmri(convolve_phase2) 0
-
-# Apply temporal filtering (EV 2)
-set fmri(tempfilt_yn2) 1
-
-# Add temporal derivative (EV 2)
-set fmri(deriv_yn2) 1
-
-# Custom EV file (EV 2)
-set fmri(custom2) ${GAINS_EV}
-
-# Orthogonalise EV 2 wrt EV 0
-set fmri(ortho2.0) 0
-
-# Orthogonalise EV 2 wrt EV 1
-set fmri(ortho2.1) 0
-
-# Orthogonalise EV 2 wrt EV 2
-set fmri(ortho2.2) 0
-
-# Orthogonalise EV 2 wrt EV 3
-set fmri(ortho2.3) 0
-
-# Orthogonalise EV 2 wrt EV 4
-set fmri(ortho2.4) 0
-
-# EV 3 title
-set fmri(evtitle3) "Losses"
-
-# Basic waveform shape (EV 3)
-# 0 : Square
-# 1 : Sinusoid
-# 2 : Custom (1 entry per volume)
-# 3 : Custom (3 column format)
-# 4 : Interaction
-# 10 : Empty (all zeros)
-set fmri(shape3) 3
-
-# Convolution (EV 3)
-# 0 : None
-# 1 : Gaussian
-# 2 : Gamma
-# 3 : Double-Gamma HRF
-# 4 : Gamma basis functions
-# 5 : Sine basis functions
-# 6 : FIR basis functions
-set fmri(convolve3) 3
-
-# Convolve phase (EV 3)
-set fmri(convolve_phase3) 0
-
-# Apply temporal filtering (EV 3)
-set fmri(tempfilt_yn3) 1
-
-# Add temporal derivative (EV 3)
-set fmri(deriv_yn3) 1
-
-# Custom EV file (EV 3)
-set fmri(custom3) ${LOSSES_EV}
-
-# Orthogonalise EV 3 wrt EV 0
-set fmri(ortho3.0) 0
-
-# Orthogonalise EV 3 wrt EV 1
-set fmri(ortho3.1) 0
-
-# Orthogonalise EV 3 wrt EV 2
-set fmri(ortho3.2) 0
-
-# Orthogonalise EV 3 wrt EV 3
-set fmri(ortho3.3) 0
-
-# Orthogonalise EV 3 wrt EV 4
-set fmri(ortho3.4) 0
-
-# EV 4 title
-set fmri(evtitle4) "Entropy"
-
-# Basic waveform shape (EV 4)
-# 0 : Square
-# 1 : Sinusoid
-# 2 : Custom (1 entry per volume)
-# 3 : Custom (3 column format)
-# 4 : Interaction
-# 10 : Empty (all zeros)
-set fmri(shape4) 3
-
-# Convolution (EV 4)
-# 0 : None
-# 1 : Gaussian
-# 2 : Gamma
-# 3 : Double-Gamma HRF
-# 4 : Gamma basis functions
-# 5 : Sine basis functions
-# 6 : FIR basis functions
-set fmri(convolve4) 3
-
-# Convolve phase (EV 4)
-set fmri(convolve_phase4) 0
-
-# Apply temporal filtering (EV 4)
-set fmri(tempfilt_yn4) 1
-
-# Add temporal derivative (EV 4)
-set fmri(deriv_yn4) 1
-
-# Custom EV file (EV 4)
-set fmri(custom4) ${ENTROPY_EV}
-
-# Orthogonalise EV 4 wrt EV 0
-set fmri(ortho4.0) 0
-
-# Orthogonalise EV 4 wrt EV 1
-set fmri(ortho4.1) 0
-
-# Orthogonalise EV 4 wrt EV 2
-set fmri(ortho4.2) 0
-
-# Orthogonalise EV 4 wrt EV 3
-set fmri(ortho4.3) 0
-
-# Orthogonalise EV 4 wrt EV 4
-set fmri(ortho4.4) 0
+#General contrast intro
+cat >> $FILE <<EOF
 
 # Contrast & F-tests mode
 # real : control real EVs
@@ -487,236 +348,98 @@ set fmri(ortho4.4) 0
 set fmri(con_mode_old) orig
 set fmri(con_mode) orig
 
-# Display images for contrast_real 1
-set fmri(conpic_real.1) 1
+EOF
 
-# Title for contrast_real 1
-set fmri(conname_real.1) "InterceptCope"
+#Real EV contrasts
+for pre_ev_num in ${!ev_names[@]}
+do
+ev_num=$( expr $pre_ev_num + 1 )
+cat >> $FILE <<EOF
 
-# Real contrast_real vector 1 element 1
-set fmri(con_real1.1) 1
+# Display images for contrast_real ${ev_num}
+set fmri(conpic_real.${ev_num}) 1
 
-# Real contrast_real vector 1 element 2
-set fmri(con_real1.2) 0
+# Title for contrast_real ${ev_num}
+set fmri(conname_real.${ev_num}) "${ev_names[$pre_ev_num]}Cope"
 
-# Real contrast_real vector 1 element 3
-set fmri(con_real1.3) 0
+EOF
 
-# Real contrast_real vector 1 element 4
-set fmri(con_real1.4) 0
+for (( i=1; i<=${real_evs}; i++ ))
+do
+ev_alter_num=$(($ev_num * 2 - 1))
+if [[ $((i)) -eq $((ev_alter_num)) ]]
+then
+  indicator=1
+else
+  indicator=0
+fi
+cat >> $FILE <<EOF
+# Real contrast_real vector ${ev_num} element ${i}
+set fmri(con_real${ev_num}.${i}) ${indicator}
 
-# Real contrast_real vector 1 element 5
-set fmri(con_real1.5) 0
+EOF
+done
 
-# Real contrast_real vector 1 element 6
-set fmri(con_real1.6) 0
+done
 
-# Real contrast_real vector 1 element 7
-set fmri(con_real1.7) 0
+#Original EV contrasts
+for pre_ev_num in ${!ev_names[@]}
+do
+ev_num=$( expr $pre_ev_num + 1 )
+cat >> $FILE <<EOF
 
-# Real contrast_real vector 1 element 8
-set fmri(con_real1.8) 0
+# Display images for contrast_orig ${ev_num}
+set fmri(conpic_orig.${ev_num}) 1
 
-# Display images for contrast_real 2
-set fmri(conpic_real.2) 1
+# Title for contrast_orig ${ev_num}
+set fmri(conname_orig.${ev_num}) "${ev_names[$pre_ev_num]}Cope"
 
-# Title for contrast_real 2
-set fmri(conname_real.2) "GainsCope"
+EOF
 
-# Real contrast_real vector 2 element 1
-set fmri(con_real2.1) 0
+for (( i=1; i<=${orig_evs}; i++ ))
+do
+if [[ $((i)) -eq $((ev_num)) ]]
+then
+  indicator=1
+else
+  indicator=0
+fi
+cat >> $FILE <<EOF
+# Real contrast_orig vector ${ev_num} element ${i}
+set fmri(con_orig${ev_num}.${i}) ${indicator}
 
-# Real contrast_real vector 2 element 2
-set fmri(con_real2.2) 0
+EOF
+done
 
-# Real contrast_real vector 2 element 3
-set fmri(con_real2.3) 1.0
+done
 
-# Real contrast_real vector 2 element 4
-set fmri(con_real2.4) 0
-
-# Real contrast_real vector 2 element 5
-set fmri(con_real2.5) 0
-
-# Real contrast_real vector 2 element 6
-set fmri(con_real2.6) 0
-
-# Real contrast_real vector 2 element 7
-set fmri(con_real2.7) 0
-
-# Real contrast_real vector 2 element 8
-set fmri(con_real2.8) 0
-
-# Display images for contrast_real 3
-set fmri(conpic_real.3) 1
-
-# Title for contrast_real 3
-set fmri(conname_real.3) "LossesCope"
-
-# Real contrast_real vector 3 element 1
-set fmri(con_real3.1) 0
-
-# Real contrast_real vector 3 element 2
-set fmri(con_real3.2) 0
-
-# Real contrast_real vector 3 element 3
-set fmri(con_real3.3) 0
-
-# Real contrast_real vector 3 element 4
-set fmri(con_real3.4) 0
-
-# Real contrast_real vector 3 element 5
-set fmri(con_real3.5) 1.0
-
-# Real contrast_real vector 3 element 6
-set fmri(con_real3.6) 0
-
-# Real contrast_real vector 3 element 7
-set fmri(con_real3.7) 0
-
-# Real contrast_real vector 3 element 8
-set fmri(con_real3.8) 0
-
-# Display images for contrast_real 4
-set fmri(conpic_real.4) 1
-
-# Title for contrast_real 4
-set fmri(conname_real.4) "EntropyCope"
-
-# Real contrast_real vector 4 element 1
-set fmri(con_real4.1) 0
-
-# Real contrast_real vector 4 element 2
-set fmri(con_real4.2) 0
-
-# Real contrast_real vector 4 element 3
-set fmri(con_real4.3) 0
-
-# Real contrast_real vector 4 element 4
-set fmri(con_real4.4) 0
-
-# Real contrast_real vector 4 element 5
-set fmri(con_real4.5) 0
-
-# Real contrast_real vector 4 element 6
-set fmri(con_real4.6) 0
-
-# Real contrast_real vector 4 element 7
-set fmri(con_real4.7) 1.0
-
-# Real contrast_real vector 4 element 8
-set fmri(con_real4.8) 0
-
-# Display images for contrast_orig 1
-set fmri(conpic_orig.1) 1
-
-# Title for contrast_orig 1
-set fmri(conname_orig.1) "InterceptCope"
-
-# Real contrast_orig vector 1 element 1
-set fmri(con_orig1.1) 1
-
-# Real contrast_orig vector 1 element 2
-set fmri(con_orig1.2) 0
-
-# Real contrast_orig vector 1 element 3
-set fmri(con_orig1.3) 0
-
-# Real contrast_orig vector 1 element 4
-set fmri(con_orig1.4) 0
-
-# Display images for contrast_orig 2
-set fmri(conpic_orig.2) 1
-
-# Title for contrast_orig 2
-set fmri(conname_orig.2) "GainsCope"
-
-# Real contrast_orig vector 2 element 1
-set fmri(con_orig2.1) 0
-
-# Real contrast_orig vector 2 element 2
-set fmri(con_orig2.2) 1.0
-
-# Real contrast_orig vector 2 element 3
-set fmri(con_orig2.3) 0
-
-# Real contrast_orig vector 2 element 4
-set fmri(con_orig2.4) 0
-
-# Display images for contrast_orig 3
-set fmri(conpic_orig.3) 1
-
-# Title for contrast_orig 3
-set fmri(conname_orig.3) "LossesCope"
-
-# Real contrast_orig vector 3 element 1
-set fmri(con_orig3.1) 0
-
-# Real contrast_orig vector 3 element 2
-set fmri(con_orig3.2) 0
-
-# Real contrast_orig vector 3 element 3
-set fmri(con_orig3.3) 1.0
-
-# Real contrast_orig vector 3 element 4
-set fmri(con_orig3.4) 0
-
-# Display images for contrast_orig 4
-set fmri(conpic_orig.4) 1
-
-# Title for contrast_orig 4
-set fmri(conname_orig.4) "EntropyCope"
-
-# Real contrast_orig vector 4 element 1
-set fmri(con_orig4.1) 0
-
-# Real contrast_orig vector 4 element 2
-set fmri(con_orig4.2) 0
-
-# Real contrast_orig vector 4 element 3
-set fmri(con_orig4.3) 0
-
-# Real contrast_orig vector 4 element 4
-set fmri(con_orig4.4) 1.0
+#Contrast intro
+cat >> $FILE <<EOF
 
 # Contrast masking - use >0 instead of thresholding?
 set fmri(conmask_zerothresh_yn) 0
 
-# Mask real contrast/F-test 1 with real contrast/F-test 2?
-set fmri(conmask1_2) 0
+EOF
 
-# Mask real contrast/F-test 1 with real contrast/F-test 3?
-set fmri(conmask1_3) 0
+#Contrast loop
+for pre_ev_num in ${!ev_names[@]}
+do
+ev_num=$( expr $pre_ev_num + 1 )
+for (( i=1; i<=${orig_evs}; i++ ))
+do
+if [[ $((i)) -eq $((ev_num)) ]]
+then
+  continue
+fi
+cat >> $FILE <<EOF
+# Mask real contrast/F-test ${ev_num} with real contrast/F-test ${i}?
+set fmri(conmask${ev_num}_${i}) 0
+EOF
+done
+done
 
-# Mask real contrast/F-test 1 with real contrast/F-test 4?
-set fmri(conmask1_4) 0
-
-# Mask real contrast/F-test 2 with real contrast/F-test 1?
-set fmri(conmask2_1) 0
-
-# Mask real contrast/F-test 2 with real contrast/F-test 3?
-set fmri(conmask2_3) 0
-
-# Mask real contrast/F-test 2 with real contrast/F-test 4?
-set fmri(conmask2_4) 0
-
-# Mask real contrast/F-test 3 with real contrast/F-test 1?
-set fmri(conmask3_1) 0
-
-# Mask real contrast/F-test 3 with real contrast/F-test 2?
-set fmri(conmask3_2) 0
-
-# Mask real contrast/F-test 3 with real contrast/F-test 4?
-set fmri(conmask3_4) 0
-
-# Mask real contrast/F-test 4 with real contrast/F-test 1?
-set fmri(conmask4_1) 0
-
-# Mask real contrast/F-test 4 with real contrast/F-test 2?
-set fmri(conmask4_2) 0
-
-# Mask real contrast/F-test 4 with real contrast/F-test 3?
-set fmri(conmask4_3) 0
+#Final info
+cat >> $FILE <<EOF
 
 # Do contrast masking at all?
 set fmri(conmask1_1) 0

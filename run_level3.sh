@@ -1,6 +1,6 @@
 #!/bin/bash -l
 
-#Script number 5 after obtaining fmriprep data.
+#Script number 6 after obtaining fmriprep data.
 #Creates the fsf file based of a template and runs feat for level 2.
 #Make sure you have created the narps_level3, narps_level3_logs and narps_fsf directories (see below).
 
@@ -35,10 +35,10 @@
 # Replace "<your_UCL_id>" with your UCL user ID :)
 #$ -wd /home/ucjtbob/Scratch/narps_level3_logs
 # make n jobs run with different numbers
-#$ -t 9
+#$ -t 1-7
 
-#range should be 1-8 to run all EVs (intercept,gains,losses,entropy) for both conditions.
-#up to 9 to compare conditions
+#range should be 1-$NUMEVS to run all EVs (intercept,gains,losses,...entropy) for both conditions.
+#up to $((compare_cond_num)) to compare conditions
 
 # 7. Setup FSL runtime environment
 
@@ -61,25 +61,28 @@ FMRIDIR=/scratch/scratch/ucjuogu/NARPS2/derivatives/fmriprep
 #Main output directory.
 OUTPUTDIR=${parent_dir}/narps_level3 #if on myriad
 
+#Setup some initial params
+compare_cond_num=7 #job number that compares losses between EqInd & EqR conditions
+NUMEVS=3 #How many EVs were in the level 1 model?
+
 #Establish condition.
-if [[ $((SGE_TASK_ID)) -lt 5 ]]; then
-  condition=EqR #job number lower than 5 is equal range
-elif [[ $((SGE_TASK_ID)) -eq 9 ]]; then
-  condition=CompareLoss #job number 9 is to compare conditions
+if [[ $((SGE_TASK_ID)) -lt $((NUMEVS + 1)) ]]; then
+  condition=EqR #job number lower than $((NUMEVS + 1)) is equal range
+elif [[ $((SGE_TASK_ID)) -eq $((compare_cond_num)) ]]; then
+  condition=CompareLoss #job number $((compare_cond_num)) is to compare conditions
 else
-  condition=EqInd #job number greater than 5 is equal indifference
+  condition=EqInd #job number greater than $((NUMEVS + 1)) is equal indifference
 fi
 
 echo condition $condition
 
 #Establish which EV (COPE).
-NUMEVS=4
 EVNUM=$((SGE_TASK_ID % NUMEVS))
 if [[ $((EVNUM)) == 0 ]]; then
   EVNUM=${NUMEVS}
 fi
 
-if [[ $((SGE_TASK_ID)) == 9 ]]; then
+if [[ $((SGE_TASK_ID)) == $((compare_cond_num)) ]]; then
   EVNUM=3 #this grabs the loss copes to compare conditions
 fi
 
@@ -124,13 +127,13 @@ if [[ $((EVNUM)) == 1 ]]; then
 elif [[ $((EVNUM)) == 2 ]]; then
   EV=gains${condition}
 elif [[ $((EVNUM)) == 3 ]]; then
-  if [[ $((SGE_TASK_ID)) == 9 ]]; then
+  if [[ $((SGE_TASK_ID)) == $((compare_cond_num)) ]]; then
     EV=CompareLoss
   else
     EV=losses${condition}
   fi
 elif [[ $((EVNUM)) == 4 ]]; then
-  EV=entropy${condition}
+  EV=entropy${condition} #this was for the entropy model
 fi
 
 echo Running level 3 on ${EV} Cope.
@@ -143,11 +146,11 @@ OUTPUT=\"${OUTPUTDIR}/${EV}\"
 FILE=${parent_dir}/narps_fsf/${EV}.fsf
 
 #Define the input FEAT directories.
-if [[ $((SGE_TASK_ID)) -lt 5 ]]; then
-  INPUTCOPES=("${EqualRange[@]}") #job number lower than 5 is equal range
+if [[ $((SGE_TASK_ID)) -lt $((NUMEVS + 1)) ]]; then
+  INPUTCOPES=("${EqualRange[@]}") #job number lower than $((NUMEVS + 1)) is equal range
   NUMINPUTCOPES=${#EqualRange[@]}
 else
-  INPUTCOPES=("${EqualIndiff[@]}") #job number greater than 5 is equal indifference
+  INPUTCOPES=("${EqualIndiff[@]}") #job number equal to or greater than $((NUMEVS + 1)) is equal indifference
   NUMINPUTCOPES=${#EqualIndiff[@]}
 fi
 #NumEqIndiffCopes=${#EqualIndiff[@]}
@@ -159,8 +162,8 @@ echo $NUMINPUTCOPESALL subjects total both conditions
 #Also define where the structural template we are using is. Not really needed if using fmriprep data.
 STRUCTREF=\"${parent_dir}/MNI152_T1_1mm_brain\" #if on myriad
 
-#Select INPUTCOPES (changes for job number 9)
-if [[ $((SGE_TASK_ID)) -lt 9 ]]; then
+#Select INPUTCOPES (changes for job number $((compare_cond_num)))
+if [[ $((SGE_TASK_ID)) -lt $((compare_cond_num)) ]]; then
 INPUTCOPES2=("${INPUTCOPES[@]}")
 else
 INPUTCOPES2=("${EqualRange[@]}") #equal range condition first to be consistent with fsf template
@@ -180,13 +183,13 @@ ALLCOPES+=("set feat_files($((i + 1))) \"${INPUTCOPES2[${i}]}\"")
 GROUPMEM+=("# Group membership for input $((i + 1))")
 GROUPMEM+=("set fmri(groupmem.$((i + 1))) 1")
 
-#outer if-then clause catches job 9
-if [[ $((SGE_TASK_ID)) -lt 9 ]]; then
+#outer if-then clause catches job $((compare_cond_num))
+if [[ $((SGE_TASK_ID)) -lt $((compare_cond_num)) ]]; then
 HIGHLEVEL+=("# Higher-level EV value for EV 1 and input $((i + 1))")
 HIGHLEVEL+=("set fmri(evg$((i + 1)).1) 1")
-elif [[ $((SGE_TASK_ID)) -eq 9 ]]; then
+elif [[ $((SGE_TASK_ID)) -eq $((compare_cond_num)) ]]; then
 
-#inner if-then clause controls condition indicator for job 9
+#inner if-then clause controls condition indicator for job $((compare_cond_num))
 if [[ $((i)) -lt ${#EqualRange[@]} ]]; then
 indicator1=1
 indicator2=0
@@ -204,7 +207,7 @@ fi
 done
 
 #Create the .fsf file.
-if [[ $((SGE_TASK_ID)) -lt 9 ]]; then
+if [[ $((SGE_TASK_ID)) -lt $((compare_cond_num)) ]]; then
 source /home/ucjtbob/narps_scripts/narps_level3_fsf_maker.sh
 else
 source /home/ucjtbob/narps_scripts/narps_level3_fsf_maker_h9.sh

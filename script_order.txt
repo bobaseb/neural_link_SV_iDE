@@ -1,0 +1,58 @@
+Only need to run once
+1. apply_brain_msk.sh
+2. get_confounds.sh w/get_confounds.py
+
+Need to run for every new model
+3. run_level1.sh w/ *_maker.sh
+4. setup_level2.sh
+5. run_level2.sh w/ *_maker.sh
+6. run_level3.sh w/ *_maker.sh
+7. masking.sh
+
+#Use this to tar up models
+fldrs=(*)
+for fldr in ${fldrs[@]}
+do
+
+tar -czvf ${fldr}.tar.gz $fldr
+
+done
+
+#Use this to check errors on jobs
+cd /scratch/scratch/ucjuogu/NARPS2/derivatives/fmriprep
+sub_fldrs=(sub*/)
+cd /scratch/scratch/ucjtbob/narps_level2_logs
+
+for i in {1..108}
+do
+otheri=$( expr $i - 1 )
+echo ${sub_fldrs[$otheri]} job_num $i
+cat narps_level2.e471485.${i}
+done
+
+#Ethics number: EP 2017 011
+
+
+Thresholded Z Map for Hypothesis 1
+Parametric effect of gain: Positive effect in ventromedial PFC - for the equal indifference group
+
+Parametric effect of gain: Positive effect in ventral striatum - for the equal indifference group
+
+Parametric effect of loss: Negative effect in VMPFC - for the equal indifference group
+
+Parametric effect of loss: Negative effect in VMPFC - for the equal range group
+
+Parametric effect of loss: Positive effect in amygdala - for the equal indifference group
+
+Parametric effect of loss: Positive effect in amygdala - for the equal range group
+
+Equal range vs. equal indifference: Greater positive response to losses in amygdala for equal range condition vs. equal indifference condition.
+(Equal Range greater than Equal Indifference)
+
+Equal range vs. equal indifference: Greater positive response to losses in amygdala for equal range condition vs. equal indifference condition.
+(Equal Indifference greater than Equal Range)
+
+How confident are you about this result?
+How similar do you think your result is to the other analysis teams?
+Anything else you want to add regarding the results? 
+If you have any other comments, please add them here. Thank you! 

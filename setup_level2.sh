@@ -6,9 +6,9 @@
 #The following two commands are needed to load FSL on Myriad.
 #These commands may need to be entered manually for some reason.
 echo have you loaded FSL?
-#FSLv=5.0.9
-#module load fsl/${FSLv}
-#source $FSLDIR/etc/fslconf/fsl.sh
+FSLv=5.0.9
+module load fsl/${FSLv}
+source $FSLDIR/etc/fslconf/fsl.sh
 
 parent_dir=/scratch/scratch/ucjtbob/narps_level1
 fmriprep_dir=/scratch/scratch/ucjuogu/NARPS2/derivatives/fmriprep
