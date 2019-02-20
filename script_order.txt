@@ -30,29 +30,52 @@ echo ${sub_fldrs[$otheri]} job_num $i
 cat narps_level2.e471485.${i}
 done
 
+#use this also to check errors on jobs
+sub_fldrs=(sub*/)
+for sub_fldr in ${sub_fldrs[@]}
+do
+
+echo $sub_fldr
+
+if [ ! -d "${sub_fldr}/stats" ]; then
+  echo 'stats directory does not exist'
+fi
+
+done
+
+
 #Ethics number: EP 2017 011
 
 
-Thresholded Z Map for Hypothesis 1
-Parametric effect of gain: Positive effect in ventromedial PFC - for the equal indifference group
+#Use this to delete filtered_func
 
-Parametric effect of gain: Positive effect in ventral striatum - for the equal indifference group
+sub_fldrs=(sub*/)
 
-Parametric effect of loss: Negative effect in VMPFC - for the equal indifference group
+for sub_fldr in ${sub_fldrs[@]}
+do
 
-Parametric effect of loss: Negative effect in VMPFC - for the equal range group
+echo $sub_fldr
+rm ${sub_fldr}/filtered_func_data.nii.gz
 
-Parametric effect of loss: Positive effect in amygdala - for the equal indifference group
+done
 
-Parametric effect of loss: Positive effect in amygdala - for the equal range group
+#check logs one by one
 
-Equal range vs. equal indifference: Greater positive response to losses in amygdala for equal range condition vs. equal indifference condition.
-(Equal Range greater than Equal Indifference)
 
-Equal range vs. equal indifference: Greater positive response to losses in amygdala for equal range condition vs. equal indifference condition.
-(Equal Indifference greater than Equal Range)
+files_of_interest=(narps_level1_run4.e*)
 
-How confident are you about this result?
-How similar do you think your result is to the other analysis teams?
-Anything else you want to add regarding the results? 
-If you have any other comments, please add them here. Thank you! 
+for file_of_interest in ${files_of_interest[@]}
+do
+
+echo $file_of_interest
+cat $file_of_interest
+
+done
+
+
+
+
+
+
+
+

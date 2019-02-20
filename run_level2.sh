@@ -25,7 +25,7 @@
 #$ -pe smp 1
 
 # 3. Set the name of the job.
-#$ -N narps_level2_again
+#$ -N narps_level2
 
 # 6. Set the working directory to somewhere in your scratch space.  This is
 # a necessary step with the upgraded software stack as compute nodes cannot

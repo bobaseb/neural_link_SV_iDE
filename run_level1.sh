@@ -26,7 +26,7 @@
 #$ -pe smp 1
 
 # 3. Set the name of the job.
-#$ -N narps_level1_rerun3
+#$ -N narps_level1_run4
 
 # 6. Set the working directory to somewhere in your scratch space.  This is
 # a necessary step with the upgraded software stack as compute nodes cannot
@@ -34,11 +34,17 @@
 #
 # Note: this directory MUST exist before your job starts!
 # Replace "<your_UCL_id>" with your UCL user ID :)
-#$ -wd /home/ucjtbob/Scratch/narps_level1_logs
+#$ -wd /home/ucjtbob/Scratch/narps1_subval_entropy/narps_level1_logs
 # make n jobs run with different numbers
-#$ -t 48
+#$ -t 1-108
+
+curr_model=narps1_subval_entropy #place above for logs as well & change MODEL!!!
+#narps1_only_subval_model #narps1_subval_entropy #narps1_only_entropy_model
 
 #range should be 1-108 to run all subjects
+
+#OJO: Folders that need to be in place prior to running are narps_level1_logs, narps_level1, narps_fsf
+#For each run, change job name and RUN variable below
 
 # 7. Setup FSL runtime environment
 
@@ -63,7 +69,8 @@ BEHAVIORDIR=${TMPDIR}/behavior
 
 #Main (parent) output directory.
 #OUTPUTDIR=/mnt/love12/home/seb/tmp_NARPS #example directory if mounted locally
-OUTPUTDIR=/scratch/scratch/ucjtbob #if on myriad
+#OUTPUTDIR=/scratch/scratch/ucjtbob #if on myriad
+OUTPUTDIR=/scratch/scratch/ucjtbob/${curr_model}
 
 currdir=$(pwd)
 cd $FMRIDIR
@@ -82,14 +89,14 @@ echo subject $SUBJ
 #for RUN in 01 #02 03 04
 #do
 
-RUN=03
+RUN=04
 echo run $RUN
 
 #Remove the trailing zeros for some of the files below.
 SUBJr=$(echo ${SUBJ} | sed 's/^0*//')
 RUNr=$(echo ${RUN} | sed 's/^0*//')
 
-#Change this output folder depending on which level you are running.
+#Change (or create) this output folder depending on which level you are running.
 #This is where the FEAT output will go.
 OUTPUT=\"${OUTPUTDIR}/narps_level1/sub${SUBJ}_run${RUN}\"
 
@@ -113,21 +120,30 @@ INPUTIMGr=${FMRIDIR}/sub-${SUBJ}/func/sub-${SUBJ}_task-MGT_run-${RUN}_bold_space
 STRUCTREF=\"${OUTPUTDIR}/MNI152_T1_1mm_brain\" #if on myriad
 #STRUCTREF=\"/usr/local/fsl/data/standard/MNI152_T1_1mm_brain\" #example local directory
 
-#EV num
-orig_evs=3
-real_evs=6 #2x for temporal derivatives
-contrasts=3
-
-#Setup some specific EVs.
+#Setup some specific EV paths.
 CONFOUND_EVS=\"${FMRIDIR}/sub-${SUBJ}/func/sub-${SUBJ}_task-MGT_run-${RUN}_bold_confounds_reduced.txt\"
 INTERCEPT_EV=\"${BEHAVIORDIR}/intercept/${SUBJr}_${RUNr}_intercept.txt\"
 GAINS_EV=\"${BEHAVIORDIR}/mc_gain/${SUBJr}_${RUNr}_mc_gain.txt\"
 LOSSES_EV=\"${BEHAVIORDIR}/mc_loss/${SUBJr}_${RUNr}_mc_loss.txt\"
 ENTROPY_EV=\"${BEHAVIORDIR}/mc_entropy/${SUBJr}_${RUNr}_mc_entropy.txt\"
+SUBVAL_EV=\"${BEHAVIORDIR}/mc_subjective_value/${SUBJr}_${RUNr}_mc_subjective_value.txt\"
 
 #Setup the current model
-ev_names=(Intercept Gains Losses)
-ev_paths=(${INTERCEPT_EV} ${GAINS_EV} ${LOSSES_EV})
+#ev_names=(Intercept Gains Losses)
+#ev_paths=(${INTERCEPT_EV} ${GAINS_EV} ${LOSSES_EV})
+ev_names=(Intercept SubVal Entropy) #SubVal is subjective value
+ev_paths=(${INTERCEPT_EV} ${SUBVAL_EV} ${ENTROPY_EV})
+
+#ev_names=(Intercept Entropy) #SubVal is subjective value
+#ev_paths=(${INTERCEPT_EV} ${ENTROPY_EV})
+
+#ev_names=(Intercept SubVal) #SubVal is subjective value
+#ev_paths=(${INTERCEPT_EV} ${SUBVAL_EV})
+
+#EV num
+orig_evs=${#ev_names[@]}
+real_evs=$((${orig_evs}*2)) #2x for temporal derivatives
+contrasts=${orig_evs} #same as orig_evs if testing main effects
 
 #Retrieve the number of volumes.
 VOLS=$(fslnvols ${INPUTIMGr})
