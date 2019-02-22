@@ -4,6 +4,7 @@ Only need to run once
 
 Need to run for every new model
 3. run_level1.sh w/ *_maker.sh
+3a. get_BIC.sh w/get_BIC.py if doing a model comparison approach
 4. setup_level2.sh
 5. run_level2.sh w/ *_maker.sh
 6. run_level3.sh w/ *_maker.sh

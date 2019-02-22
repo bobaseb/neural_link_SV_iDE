@@ -16,7 +16,8 @@
 #$ -S /bin/bash
 
 # 1. Request 1 hour of wallclock time (format hours:minutes:seconds).
-#$ -l h_rt=5:0:0
+#$ -l h_rt=10:0:0
+#originally 5 hours, then 10 hours
 
 # 2. Request 4 gigabyte of RAM.
 #$ -l mem=4G
@@ -99,6 +100,10 @@ RUNr=$(echo ${RUN} | sed 's/^0*//')
 #Change (or create) this output folder depending on which level you are running.
 #This is where the FEAT output will go.
 OUTPUT=\"${OUTPUTDIR}/narps_level1/sub${SUBJ}_run${RUN}\"
+
+if [ ! -f "${OUTPUTDIR}/narps_level1/sub${SUBJ}_run${RUN}.feat/thresh_zstat3.nii.gz" ]; then
+  rm -R ${OUTPUTDIR}/narps_level1/sub${SUBJ}_run${RUN}.feat/stats
+fi
 
 if [ -d "${OUTPUTDIR}/narps_level1/sub${SUBJ}_run${RUN}.feat/stats" ]; then
   echo 'stats directory exists'
