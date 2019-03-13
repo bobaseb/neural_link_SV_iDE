@@ -15,7 +15,9 @@
 #$ -S /bin/bash
 
 # 1. Request 1 hour of wallclock time (format hours:minutes:seconds).
-#$ -l h_rt=5:0:0
+#$ -l h_rt=48:0:0
+
+#was 5 hours for NARPS
 
 # 2. Request 4 gigabyte of RAM.
 #$ -l mem=4G
@@ -33,9 +35,9 @@
 #
 # Note: this directory MUST exist before your job starts!
 # Replace "<your_UCL_id>" with your UCL user ID :)
-#$ -wd /home/ucjtbob/Scratch/narps_level3_logs
+#$ -wd /home/ucjtbob/Scratch/narps1_subval_entropy/narps_level3_logs
 # make n jobs run with different numbers
-#$ -t 1-7
+#$ -t 1-3
 
 #range should be 1-$NUMEVS to run all EVs (intercept,gains,losses,...entropy) for both conditions.
 #up to $((compare_cond_num)) to compare conditions
@@ -52,7 +54,9 @@ source $FSLDIR/etc/fslconf/fsl.sh
 
 export FSLSUBALREADYRUN=true
 
-parent_dir=/scratch/scratch/ucjtbob #if on myriad
+#parent_dir=/scratch/scratch/ucjtbob #if on myriad
+model=narps1_subval_entropy
+parent_dir=/scratch/scratch/ucjtbob/${model}
 
 #Main input directories.
 LEVEL2DIR=${parent_dir}/narps_level2 #if on myriad
@@ -64,6 +68,7 @@ OUTPUTDIR=${parent_dir}/narps_level3 #if on myriad
 #Setup some initial params
 compare_cond_num=7 #job number that compares losses between EqInd & EqR conditions
 NUMEVS=3 #How many EVs were in the level 1 model?
+sep_cond=0 #separate by condition?
 
 #Establish condition.
 if [[ $((SGE_TASK_ID)) -lt $((NUMEVS + 1)) ]]; then
@@ -73,6 +78,8 @@ elif [[ $((SGE_TASK_ID)) -eq $((compare_cond_num)) ]]; then
 else
   condition=EqInd #job number greater than $((NUMEVS + 1)) is equal indifference
 fi
+
+condition=AllSubs #in case we just use all subjects
 
 echo condition $condition
 
@@ -121,16 +128,18 @@ else
 fi
 done
 
-#Give the level 3 test a name.
+#Give the level 3 test a name. You can change based on level 1 model.
 if [[ $((EVNUM)) == 1 ]]; then
   EV=intercept${condition}
 elif [[ $((EVNUM)) == 2 ]]; then
-  EV=gains${condition}
+  #EV=gains${condition}
+  EV=subval${condition}
 elif [[ $((EVNUM)) == 3 ]]; then
   if [[ $((SGE_TASK_ID)) == $((compare_cond_num)) ]]; then
     EV=CompareLoss
   else
-    EV=losses${condition}
+    #EV=losses${condition}
+    EV=entropy${condition}
   fi
 elif [[ $((EVNUM)) == 4 ]]; then
   EV=entropy${condition} #this was for the entropy model
@@ -163,11 +172,22 @@ echo $NUMINPUTCOPESALL subjects total both conditions
 STRUCTREF=\"${parent_dir}/MNI152_T1_1mm_brain\" #if on myriad
 
 #Select INPUTCOPES (changes for job number $((compare_cond_num)))
+if [[ $((sep_cond)) -eq 1 ]]; then
+
 if [[ $((SGE_TASK_ID)) -lt $((compare_cond_num)) ]]; then
 INPUTCOPES2=("${INPUTCOPES[@]}")
 else
 INPUTCOPES2=("${EqualRange[@]}") #equal range condition first to be consistent with fsf template
 INPUTCOPES2+=("${EqualIndiff[@]}")
+fi
+
+else
+
+INPUTCOPES2=("${EqualRange[@]}") #equal range condition first to be consistent with fsf template
+INPUTCOPES2+=("${EqualIndiff[@]}")
+NUMINPUTCOPES=${NUMINPUTCOPESALL}
+echo 'not separated by condition'
+
 fi
 
 #Define all the COPE paths & specs in .fsf format.

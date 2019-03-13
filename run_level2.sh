@@ -33,9 +33,9 @@
 #
 # Note: this directory MUST exist before your job starts!
 # Replace "<your_UCL_id>" with your UCL user ID :)
-#$ -wd /home/ucjtbob/Scratch/narps_level2_logs
+#$ -wd /home/ucjtbob/Scratch/narps1_subval_entropy/narps_level2_logs
 # make n jobs run with different numbers
-#$ -t 1-108
+#$ -t 2-108
 
 #range should be 1-108 to run all subjects
 
@@ -54,7 +54,9 @@ export FSLSUBALREADYRUN=true
 #Set the fmri repetition time (TR) here.
 TR=1.000000
 
-parent_dir=/scratch/scratch/ucjtbob #if on myriad
+#parent_dir=/scratch/scratch/ucjtbob #if on myriad
+model=narps1_subval_entropy
+parent_dir=/scratch/scratch/ucjtbob/${model}
 
 #Main input directories.
 LEVEL1DIR=${parent_dir}/narps_level1 #if on myriad
