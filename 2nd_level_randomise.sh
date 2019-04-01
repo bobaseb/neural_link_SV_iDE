@@ -11,7 +11,7 @@
 #$ -S /bin/bash
 
 # 1. Request 1 hour of wallclock time (format hours:minutes:seconds).
-#$ -l h_rt=10:0:0
+#$ -l h_rt=40:0:0
 
 # 2. Request 4 gigabyte of RAM.
 #$ -l mem=4G
@@ -45,7 +45,7 @@ source $FSLDIR/etc/fslconf/fsl.sh
 # 8. Need this environment variable for FEAT and other methods eg bedpostx to
 # stop job submission from within jobs and qrsh sessions.
 
-#export FSLSUBALREADYRUN=true
+export FSLSUBALREADYRUN=true
 
 parent_dir=/scratch/scratch/ucjtbob #if on myriad
 model_dir=narps1_subval_entropy
@@ -88,5 +88,7 @@ entropy_z_fn=${parent_dir}/${model_dir}/second_level_diffs/entropies_z.nii.gz
 #fslmaths  ${entropy_z_fn} -sub ${subval_z_fn} entropy_minus_subval.nii.gz
 #fslmaths ${subval_z_fn} -sub  ${entropy_z_fn} subval_minus_entropy.nii.gz
 
-#randomise_parallel -i entropy_minus_subval.nii.gz -o entropy_minus_subval -1 -T
-randomise_parallel -i subval_minus_entropy.nii.gz -o subval_minus_entropy -1 -T
+which_sign=subval_minus_entropy #entropy_minus_subval #
+#randomise_parallel -i ${which_sign}.nii.gz -o ${which_sign} -1 -T
+fslmaths ${which_sign}_tfce_corrp_tstat1 -thr 0.99 -bin -mul ${which_sign}_tstat1 ${which_sign}_thresh_tstat1
+cluster --in=${which_sign}_thresh_tstat1 --thresh=0.0001 --oindex=${which_sign}_cluster_index --olmax=${which_sign}_lmax.txt --osize=${which_sign}_cluster_size --mm
