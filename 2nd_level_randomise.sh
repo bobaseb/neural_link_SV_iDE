@@ -79,16 +79,23 @@ done
 
 cd ${parent_dir}/${model_dir}/second_level_diffs
 
-subval_z_fn=${parent_dir}/${model_dir}/second_level_diffs/subval_z.nii.gz
-entropy_z_fn=${parent_dir}/${model_dir}/second_level_diffs/entropies_z.nii.gz
+#subval_z_fn=${parent_dir}/${model_dir}/second_level_diffs/subval_z.nii.gz
+#entropy_z_fn=${parent_dir}/${model_dir}/second_level_diffs/entropies_z.nii.gz
+#subval_z_fn=${parent_dir}/${model_dir}/second_level_diffs/signed_diffs/subval_z.nii.gz
+#entropy_z_fn=${parent_dir}/${model_dir}/second_level_diffs/signed_diffs/entropies_z.nii.gz
+
+subval_z_fn=${parent_dir}/${model_dir}/second_level_diffs/subval_z_abs.nii.gz
+entropy_z_fn=${parent_dir}/${model_dir}/second_level_diffs/entropies_z_abs.nii.gz
 
 #fslmerge -t ${subval_z_fn} ${subvals[@]}
 #fslmerge -t ${entropy_z_fn} ${entropies[@]}
 
-#fslmaths  ${entropy_z_fn} -sub ${subval_z_fn} entropy_minus_subval.nii.gz
-#fslmaths ${subval_z_fn} -sub  ${entropy_z_fn} subval_minus_entropy.nii.gz
+#which_sign=entropyA_minus_subvalA #A for absolute value
+which_sign=subval_A_minus_entropy_A #A for absolute value
 
-which_sign=subval_minus_entropy #entropy_minus_subval #
-#randomise_parallel -i ${which_sign}.nii.gz -o ${which_sign} -1 -T
+#fslmaths  ${entropy_z_fn} -sub ${subval_z_fn} ${which_sign}
+fslmaths ${subval_z_fn} -sub  ${entropy_z_fn} ${which_sign}
+
+randomise_parallel -i ${which_sign}.nii.gz -o ${which_sign} -1 -T
 fslmaths ${which_sign}_tfce_corrp_tstat1 -thr 0.99 -bin -mul ${which_sign}_tstat1 ${which_sign}_thresh_tstat1
 cluster --in=${which_sign}_thresh_tstat1 --thresh=0.0001 --oindex=${which_sign}_cluster_index --olmax=${which_sign}_lmax.txt --osize=${which_sign}_cluster_size --mm
