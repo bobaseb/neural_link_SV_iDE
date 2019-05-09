@@ -8,6 +8,8 @@ Need to run for every new model
 3b. BIC_setup_randomise.sh
 3c. BIC_randomise.sh 
 3d. 2nd_level_randomise.sh
+3e. BIC_model_comp.py
+3f. entropy_subval_align.py
 
 4. setup_level2.sh
 5. run_level2.sh w/ *_maker.sh
@@ -20,6 +22,15 @@ for fldr in ${fldrs[@]}
 do
 
 tar -czvf ${fldr}.tar.gz $fldr
+
+done
+
+#Use this to untar up models
+tarballs=(*)
+for tarball in ${tarballs[@]}
+do
+
+tar -zxvf ${tarball}
 
 done
 

@@ -27,7 +27,7 @@
 #$ -pe smp 1
 
 # 3. Set the name of the job.
-#$ -N narps_level1_run4
+#$ -N narps_level1-5_run4
 
 # 6. Set the working directory to somewhere in your scratch space.  This is
 # a necessary step with the upgraded software stack as compute nodes cannot
@@ -35,16 +35,17 @@
 #
 # Note: this directory MUST exist before your job starts!
 # Replace "<your_UCL_id>" with your UCL user ID :)
-#$ -wd /home/ucjtbob/Scratch/narps1_subval_entropy/narps_level1_logs
+#$ -wd /home/ucjtbob/Scratch/narps1-5_subval_entropy/narps_level1_logs
 # make n jobs run with different numbers
 #$ -t 1-108
 
-curr_model=narps1_subval_entropy #place above for logs as well & change MODEL!!!
+curr_model=narps1-5_subval_entropy #place above for logs as well & change MODEL!!!
 #narps1_only_subval_model #narps1_subval_entropy #narps1_only_entropy_model
 
 #range should be 1-108 to run all subjects
 
 #OJO: Folders that need to be in place prior to running are narps_level1_logs, narps_level1, narps_fsf
+#OJO: The model folder also needs the MNI152 brain (1mm for NARPS)
 #For each run, change job name and RUN variable below
 
 # 7. Setup FSL runtime environment
@@ -136,8 +137,12 @@ SUBVAL_EV=\"${BEHAVIORDIR}/mc_subjective_value/${SUBJr}_${RUNr}_mc_subjective_va
 #Setup the current model
 #ev_names=(Intercept Gains Losses)
 #ev_paths=(${INTERCEPT_EV} ${GAINS_EV} ${LOSSES_EV})
-ev_names=(Intercept SubVal Entropy) #SubVal is subjective value
-ev_paths=(${INTERCEPT_EV} ${SUBVAL_EV} ${ENTROPY_EV})
+
+ev_names=(Intercept Gains Losses Entropy)
+ev_paths=(${INTERCEPT_EV} ${GAINS_EV} ${LOSSES_EV} ${ENTROPY_EV})
+
+#ev_names=(Intercept SubVal Entropy) #SubVal is subjective value
+#ev_paths=(${INTERCEPT_EV} ${SUBVAL_EV} ${ENTROPY_EV})
 
 #ev_names=(Intercept Entropy) #SubVal is subjective value
 #ev_paths=(${INTERCEPT_EV} ${ENTROPY_EV})

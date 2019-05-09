@@ -49,10 +49,11 @@ easy_thresh=/home/ucjtbob/narps_scripts/easythresh_conj.sh
 #bash $easy_thresh $pos_entropy_z $pos_subval_z 2.3 $example_func grot_pos
 #bash $easy_thresh $neg_entropy_z $neg_subval_z 2.3 $example_func grot_neg
 
-in_conj_prefix=subval_minus_entropy_neg #entropy_minus_subval_neg # #entropy_minus_subval_pos #subval_minus_entropy_pos
+in_conj_prefix=entropy_minus_subval_neg #subval_minus_entropy_pos #entropy_minus_subval_pos #subval_minus_entropy_neg #
 #bash $easy_thresh $entropy_minus_subval_zstat1 $pos_entropy_z 2.3 $example_func ${in_conj_prefix}
 #bash $easy_thresh $subval_minus_entropy_zstat1 $pos_subval_z 2.3 $example_func ${in_conj_prefix}
 #bash $easy_thresh $entropy_minus_subval_zstat1 $neg_subval_z 2.3 $example_func ${in_conj_prefix} # bigger than interacts with other variable for negs (neg effect of subval here)
+#(should've used zstat2 to avoid confusion)
 bash $easy_thresh $subval_minus_entropy_zstat1 $neg_entropy_z 2.3 $example_func ${in_conj_prefix} # bigger than interacts with other variable for negs (neg effect of entropy here)
 
 #exit 1
@@ -65,5 +66,11 @@ fslmaths zstat_min_${in_conj_prefix}.nii.gz -thr 2.3 zstat_min_${in_conj_prefix}
 #cluster --in=zstat_min_grot_pos_thresh.nii.gz --thresh=0.0001 --oindex=pos_cluster_index --olmax=pos_lmax.txt --osize=pos_cluster_size
 #cluster --in=zstat_min_grot_neg_thresh.nii.gz --thresh=0.0001 --oindex=neg_cluster_index --olmax=neg_lmax.txt --osize=neg_cluster_size
 cluster --in=zstat_min_${in_conj_prefix}_thresh.nii.gz --thresh=0.0001 --oindex=${in_conj_prefix}_cluster_index --olmax=${in_conj_prefix}_lmax.txt --osize=${in_conj_prefix}_cluster_size
+
+fslnums=$(fslstats zstat_min_${in_conj_prefix}_thresh.nii.gz -v)
+TOT_VOXELS=${fslnums:0:(`expr index "$fslnums"  " "`)}
+echo total non-zero voxels ${TOT_VOXELS}
+cluster -i zstat_min_${in_conj_prefix}_thresh.nii.gz -t 2.3 -p 0.05 -d 0.0136188 --oindex=${in_conj_prefix}_cluster_index --olmax=${in_conj_prefix}_lmax.txt --osize=${in_conj_prefix}_cluster_size --volume=${TOT_VOXELS} > cluster_zstat1_${in_conj_prefix}.txt
+
 
 cd /home/ucjtbob/narps_scripts/

@@ -35,9 +35,9 @@
 #
 # Note: this directory MUST exist before your job starts!
 # Replace "<your_UCL_id>" with your UCL user ID :)
-#$ -wd /home/ucjtbob/Scratch/narps1_subval_entropy/narps_level3_logs
+#$ -wd /home/ucjtbob/Scratch/narps0_gle_model/narps_level3_logs
 # make n jobs run with different numbers
-#$ -t 1-3
+#$ -t 1-4
 
 #range should be 1-$NUMEVS to run all EVs (intercept,gains,losses,...entropy) for both conditions.
 #up to $((compare_cond_num)) to compare conditions
@@ -55,7 +55,7 @@ source $FSLDIR/etc/fslconf/fsl.sh
 export FSLSUBALREADYRUN=true
 
 #parent_dir=/scratch/scratch/ucjtbob #if on myriad
-model=narps1_subval_entropy
+model=narps0_gle_model #narps1_subval_entropy
 parent_dir=/scratch/scratch/ucjtbob/${model}
 
 #Main input directories.
@@ -67,7 +67,7 @@ OUTPUTDIR=${parent_dir}/narps_level3 #if on myriad
 
 #Setup some initial params
 compare_cond_num=7 #job number that compares losses between EqInd & EqR conditions
-NUMEVS=3 #How many EVs were in the level 1 model?
+NUMEVS=4 #How many EVs were in the level 1 model?
 sep_cond=0 #separate by condition?
 
 #Establish condition.
@@ -132,14 +132,14 @@ done
 if [[ $((EVNUM)) == 1 ]]; then
   EV=intercept${condition}
 elif [[ $((EVNUM)) == 2 ]]; then
-  #EV=gains${condition}
-  EV=subval${condition}
+  EV=gains${condition}
+  #EV=subval${condition}
 elif [[ $((EVNUM)) == 3 ]]; then
   if [[ $((SGE_TASK_ID)) == $((compare_cond_num)) ]]; then
     EV=CompareLoss
   else
-    #EV=losses${condition}
-    EV=entropy${condition}
+    EV=losses${condition}
+    #EV=entropy${condition}
   fi
 elif [[ $((EVNUM)) == 4 ]]; then
   EV=entropy${condition} #this was for the entropy model

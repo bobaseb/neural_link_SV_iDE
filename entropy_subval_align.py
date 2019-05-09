@@ -1,8 +1,22 @@
+source /etc/profile.d/modules.sh
+module unload compilers
+module load compilers/gnu/4.9.2
+module load swig/3.0.7/gnu-4.9.2
+module load python2/recommended
+
 import sys
 #import pandas as pd
 import numpy as np
+from numpy.polynomial.polynomial import polyfit
+import matplotlib.pyplot as plt
 import mvpa2.suite as mvpa2
 from scipy import stats
+
+def make_neurimg(parent_ds,child_ds):
+    parent_ds.samples = child_ds
+    print(parent_ds.shape)
+    nimg = mvpa2.map2nifti(parent_ds)
+    return nimg
 
 pwd = '/scratch/scratch/ucjtbob'
 
@@ -15,20 +29,20 @@ laccumbens = '/scratch/scratch/ucjtbob/narps_masks_1mm/Left_Accumbens.nii.gz'
 lamygdala = '/scratch/scratch/ucjtbob/narps_masks_1mm/Left_Amygdala.nii.gz'
 fmc = '/scratch/scratch/ucjtbob/narps_masks_1mm/Frontal_Medial_Cortex.nii.gz'
 
-#make the intercept mask
-intercept_pos = pwd + '/narps1_subval_entropy/narps_level3/interceptAllSubs.gfeat/cope1.feat/thresh_zstat1.nii.gz'
-intercept_neg = pwd + '/narps1_subval_entropy/narps_level3/interceptAllSubs.gfeat/cope1.feat/thresh_zstat2.nii.gz'
-fn1 = intercept_pos
-fn2 = intercept_neg
-msk = None
-ds1 = mvpa2.fmri_dataset(fn1, mask=msk)
-ds2 = mvpa2.fmri_dataset(fn2, mask=msk)
-ds3 = ds1.samples + ds2.samples
-ds3[ds3>0] = 1
-ds1.samples = ds3
-print(ds1.shape)
-nimg = mvpa2.map2nifti(ds1)
-nimg.to_filename(pwd + '/narps1_subval_entropy/narps_level3/interceptAllSubs.gfeat/cope1.feat/intercept_msk.nii.gz')
+make_intercept=0
+if make_intercept==1:
+    #make the intercept mask
+    intercept_pos = pwd + '/narps1_subval_entropy/narps_level3/interceptAllSubs.gfeat/cope1.feat/thresh_zstat1.nii.gz'
+    intercept_neg = pwd + '/narps1_subval_entropy/narps_level3/interceptAllSubs.gfeat/cope1.feat/thresh_zstat2.nii.gz'
+    fn1 = intercept_pos
+    fn2 = intercept_neg
+    msk = None
+    ds1 = mvpa2.fmri_dataset(fn1, mask=msk)
+    ds2 = mvpa2.fmri_dataset(fn2, mask=msk)
+    ds3 = ds1.samples + ds2.samples
+    ds3[ds3>0] = 1
+    nimg = make_neurimg(ds1,ds3)
+    nimg.to_filename(pwd + '/narps1_subval_entropy/narps_level3/interceptAllSubs.gfeat/cope1.feat/intercept_msk.nii.gz')
 
 
 entropy_pos = pwd + '/narps1_subval_entropy/narps_level3/entropyAllSubs.gfeat/cope1.feat/thresh_zstat1.nii.gz' #11
@@ -41,15 +55,44 @@ subval_neg = pwd + '/narps1_subval_entropy/narps_level3/subvalAllSubs.gfeat/cope
 #subval_pos = pwd + '/narps1_subval_entropy/narps_level3/subvalAllSubs.gfeat/cope1.feat/stats/zstat1.nii.gz'
 #subval_neg = pwd + '/narps1_subval_entropy/narps_level3/subvalAllSubs.gfeat/cope1.feat/stats/zstat2.nii.gz'
 
-#entropy_pos = pwd + '/narps1_subval_entropy/narps_level3/entropyAllSubs.gfeat/cope1.feat/stats/pe1.nii.gz'
-#subval_pos = pwd + '/narps1_subval_entropy/narps_level3/subvalAllSubs.gfeat/cope1.feat/stats/pe1.nii.gz'
+entropy_betas = pwd + '/narps1_subval_entropy/narps_level3/entropyAllSubs.gfeat/cope1.feat/stats/pe1.nii.gz'
+subval_betas = pwd + '/narps1_subval_entropy/narps_level3/subvalAllSubs.gfeat/cope1.feat/stats/pe1.nii.gz'
 
 #msk = pwd + '/narps1_subval_entropy/narps_level3/interceptAllSubs.gfeat/cope1.feat/intercept_msk.nii.gz'
-msk = lamygdala
+#msk = None
+msk = fmc
+
+ds_entropy_betas =  mvpa2.fmri_dataset(entropy_betas, mask=msk)
+ds_subval_betas =  mvpa2.fmri_dataset(subval_betas, mask=msk)
+
+z_entropy_betas = (ds_entropy_betas.samples - np.mean(ds_entropy_betas.samples))/np.std(ds_entropy_betas.samples)
+z_subval_betas = (ds_subval_betas.samples - np.mean(ds_subval_betas.samples))/np.std(ds_subval_betas.samples)
+ds_mean_betas = (z_entropy_betas + z_subval_betas)/2
+#nimg = make_neurimg(ds_entropy_betas,ds_mean_betas)
+#nimg.to_filename(pwd + '/narps1_subval_entropy/narps_level3/mn_subval_entropy_betas.nii.gz')
+
+x = z_entropy_betas[0]
+y = z_subval_betas[0]
+stats.pearsonr(x,y)
+
+# Fit with polyfit
+b, m = polyfit(y, x, 1)
+
+plt.plot(x, y, '.')
+plt.plot(x, b + m * x, '-')
+plt.xlabel('Decision entropy', fontsize=18)
+plt.ylabel('Subjective Value', fontsize=16)
+plt.show()
+
 ds_entropy_pos = mvpa2.fmri_dataset(entropy_pos, mask=msk)
 ds_entropy_neg = mvpa2.fmri_dataset(entropy_neg, mask=msk)
 ds_subval_pos = mvpa2.fmri_dataset(subval_pos, mask=msk)
 ds_subval_neg = mvpa2.fmri_dataset(subval_neg, mask=msk)
+
+stats.pearsonr(ds_entropy_pos.samples[0],ds_subval_pos.samples[0])
+stats.pearsonr(ds_entropy_neg.samples[0],ds_subval_neg.samples[0])
+
+#stats.pearsonr(ds_entropy_pos.samples[0],ds_subval_neg.samples[0])
 
 #ds_entropy = ds_entropy_neg.samples + ds_entropy_pos.samples
 #ds_subval = ds_subval_neg.samples + ds_subval_pos.samples
@@ -72,8 +115,3 @@ twobytwo = twobytwo/np.sum(twobytwo)
 print(twobytwo)
 
 #np.histogram(ds_all, bins=[0,1,3,7,8,10,11,12,14,100])
-
-stats.pearsonr(ds_entropy_pos.samples[0],ds_subval_pos.samples[0])
-stats.pearsonr(ds_entropy_neg.samples[0],ds_subval_neg.samples[0])
-
-#stats.pearsonr(ds_entropy_pos.samples[0],ds_subval_neg.samples[0])
