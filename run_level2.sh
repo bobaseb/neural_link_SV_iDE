@@ -33,9 +33,9 @@
 #
 # Note: this directory MUST exist before your job starts!
 # Replace "<your_UCL_id>" with your UCL user ID :)
-#$ -wd /home/ucjtbob/Scratch/narps1_subval_entropy/narps_level2_logs
+#$ -wd /home/ucjtbob/Scratch/narps0-5_gl_entropy/narps_level2_logs
 # make n jobs run with different numbers
-#$ -t 2-108
+#$ -t 1-108
 
 #range should be 1-108 to run all subjects
 
@@ -55,7 +55,7 @@ export FSLSUBALREADYRUN=true
 TR=1.000000
 
 #parent_dir=/scratch/scratch/ucjtbob #if on myriad
-model=narps1_subval_entropy
+model=narps0-5_gl_entropy
 parent_dir=/scratch/scratch/ucjtbob/${model}
 
 #Main input directories.
@@ -78,7 +78,7 @@ echo subject $SUBJ
 NUMRUNS=4
 echo $NUMRUNS runs
 
-orig_evs=3 #how many EVs in level 1 model?
+orig_evs=4 #how many EVs in level 1 model?
 echo $orig_evs EVs
 
 #Change this output folder depending on which level you are running.

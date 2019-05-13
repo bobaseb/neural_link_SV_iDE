@@ -3,14 +3,16 @@
 #Script number 4 (after running level 1).
 #Some hacks to avoid registration when level 2 is run.
 
-#The following two commands are needed to load FSL on Myriad.
-#These commands may need to be entered manually for some reason.
-echo have you loaded FSL?
+#The following commands are needed to load FSL on Myriad.
+#call FSL
+source /etc/profile.d/modules.sh
 FSLv=5.0.9
 module load fsl/${FSLv}
 source $FSLDIR/etc/fslconf/fsl.sh
 
-parent_dir=/scratch/scratch/ucjtbob/narps_level1
+model=narps1-5_gl_entropy
+
+parent_dir=/scratch/scratch/ucjtbob/${model}/narps_level1
 fmriprep_dir=/scratch/scratch/ucjuogu/NARPS2/derivatives/fmriprep
 
 cd ${fmriprep_dir}
@@ -33,6 +35,8 @@ echo subject $subj
 
     cd ${curr_dir}/reg
 
+    cp example_func2standard.mat example_func2standard_old.txt
+    cp standard2example_func.mat standard2example_func_old.txt
     rm *.mat
 
     cp ${FSLDIR}/etc/flirtsch/ident.mat ${curr_dir}/reg/example_func2standard.mat

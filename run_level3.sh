@@ -35,9 +35,9 @@
 #
 # Note: this directory MUST exist before your job starts!
 # Replace "<your_UCL_id>" with your UCL user ID :)
-#$ -wd /home/ucjtbob/Scratch/narps0_gle_model/narps_level3_logs
+#$ -wd /home/ucjtbob/Scratch/narps0-5_gl_entropy/narps_level3_logs
 # make n jobs run with different numbers
-#$ -t 1-4
+#$ -t 1-9
 
 #range should be 1-$NUMEVS to run all EVs (intercept,gains,losses,...entropy) for both conditions.
 #up to $((compare_cond_num)) to compare conditions
@@ -55,7 +55,7 @@ source $FSLDIR/etc/fslconf/fsl.sh
 export FSLSUBALREADYRUN=true
 
 #parent_dir=/scratch/scratch/ucjtbob #if on myriad
-model=narps0_gle_model #narps1_subval_entropy
+model=narps0-5_gl_entropy #narps1_subval_entropy
 parent_dir=/scratch/scratch/ucjtbob/${model}
 
 #Main input directories.
@@ -66,9 +66,9 @@ FMRIDIR=/scratch/scratch/ucjuogu/NARPS2/derivatives/fmriprep
 OUTPUTDIR=${parent_dir}/narps_level3 #if on myriad
 
 #Setup some initial params
-compare_cond_num=7 #job number that compares losses between EqInd & EqR conditions
+compare_cond_num=9 #job number that compares losses between EqInd & EqR conditions
 NUMEVS=4 #How many EVs were in the level 1 model?
-sep_cond=0 #separate by condition?
+sep_cond=1 #separate by condition?
 
 #Establish condition.
 if [[ $((SGE_TASK_ID)) -lt $((NUMEVS + 1)) ]]; then
@@ -79,7 +79,9 @@ else
   condition=EqInd #job number greater than $((NUMEVS + 1)) is equal indifference
 fi
 
-condition=AllSubs #in case we just use all subjects
+if [[ $((sep_cond)) == $((0)) ]]; then
+  condition=AllSubs #in case we just use all subjects
+fi
 
 echo condition $condition
 

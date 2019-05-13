@@ -16,6 +16,16 @@ Need to run for every new model
 6. run_level3.sh w/ *_maker.sh
 7. masking.sh
 
+
+#check number of files per dir
+fldrs=(*)
+for fldr in ${fldrs[@]}
+do
+
+ls ${fldr} | wc -l
+
+done
+
 #Use this to tar up models
 fldrs=(*)
 for fldr in ${fldrs[@]}
