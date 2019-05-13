@@ -37,7 +37,7 @@
 # Replace "<your_UCL_id>" with your UCL user ID :)
 #$ -wd /home/ucjtbob/Scratch/narps0-5_gl_entropy/narps_level3_logs
 # make n jobs run with different numbers
-#$ -t 1-9
+#$ -t 9
 
 #range should be 1-$NUMEVS to run all EVs (intercept,gains,losses,...entropy) for both conditions.
 #up to $((compare_cond_num)) to compare conditions

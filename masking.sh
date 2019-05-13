@@ -3,7 +3,8 @@
 #Script number 7. Final.
 #Resample masks, binarize them, join left/right masks, answer hypotheses.
 
-#The following two commands are needed to load FSL on Myriad.
+#The following commands are needed to load FSL on Myriad.
+source /etc/profile.d/modules.sh
 FSLv=5.0.9
 module load fsl/${FSLv}
 source $FSLDIR/etc/fslconf/fsl.sh
@@ -13,8 +14,8 @@ parent_dir=/scratch/scratch/ucjtbob/narps_masks
 bin_dir=/scratch/scratch/ucjtbob/narps_masks_bin
 cd $parent_dir
 msks=(*)
-#ref=/scratch/scratch/ucjtbob/narps_level3/CompareLoss.gfeat/mean_func.nii.gz
-ref=/scratch/scratch/ucjtbob/narps_entropy_model/narps_level3/CompareLoss.gfeat/mean_func.nii.gz
+model=narps0-5_gl_entropy
+ref=/scratch/scratch/ucjtbob/${model}/narps_level3/CompareLoss.gfeat/mean_func.nii.gz
 #standard=/scratch/scratch/ucjtbob/MNI152_T1_1mm_brain.nii.gz
 
 #eye_mat=/scratch/scratch/ucjtbob/narps_level3/narps_entropy_model/identity.mat
@@ -62,9 +63,9 @@ done
 #Now let's compute answers to all 9 hypotheses, and then some.
 
 #level3_dir=/scratch/scratch/ucjtbob/narps_level3
-level3_dir=/scratch/scratch/ucjtbob/narps_entropy_model/narps_level3
+level3_dir=/scratch/scratch/ucjtbob/${model}/narps_level3
 #results_dir=/scratch/scratch/ucjtbob/narps_results
-results_dir=/scratch/scratch/ucjtbob/narps_entropy_model/narps_results
+results_dir=/scratch/scratch/ucjtbob/${model}/narps_results
 bin_dir=/scratch/scratch/ucjtbob/narps_masks_bin
 
 #Parametric effect of gain:
@@ -81,7 +82,7 @@ fslmaths ${msk} -mul ${level3_dir}/gainsEqR.gfeat/cope1.feat/thresh_zstat1.nii.g
 msk=${bin_dir}/Accumbens_narps_bin.nii.gz
 fslmaths ${msk} -mul ${level3_dir}/gainsEqInd.gfeat/cope1.feat/thresh_zstat1.nii.gz ${results_dir}/H3_mskd.nii.gz
 
-#    Positive effect in ventral striatum - for the equal range group
+#    Positive effect in ventral striatum - for the equal range group 
 msk=${bin_dir}/Accumbens_narps_bin.nii.gz
 fslmaths ${msk} -mul ${level3_dir}/gainsEqR.gfeat/cope1.feat/thresh_zstat1.nii.gz ${results_dir}/H4_mskd.nii.gz
 
@@ -112,7 +113,7 @@ fslmaths ${msk} -mul ${level3_dir}/CompareLoss.gfeat/cope1.feat/thresh_zstat2.ni
 
 
 #results_dir=/scratch/scratch/ucjtbob/narps_results
-results_dir=/scratch/scratch/ucjtbob/narps_entropy_model/narps_results
+results_dir=/scratch/scratch/ucjtbob/${model}/narps_results
 #let's look at the mean of each resulting image
 cd ${results_dir}
 results=(*)
