@@ -2,7 +2,8 @@
 
 #run t-tests on BICs with randomise
 
-parent_dir=/scratch/scratch/ucjtbob
+curr_model=narps1-5_subval_entropy
+parent_dir=/scratch/scratch/ucjtbob/${curr_model}
 entropy=${parent_dir}/narps1_only_entropy_model/BIC_level2
 subval=${parent_dir}/narps1_only_subval_model/BIC_level2
 both=${parent_dir}/narps1_subval_entropy/BIC_level2

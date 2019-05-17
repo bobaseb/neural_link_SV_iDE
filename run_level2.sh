@@ -33,9 +33,9 @@
 #
 # Note: this directory MUST exist before your job starts!
 # Replace "<your_UCL_id>" with your UCL user ID :)
-#$ -wd /home/ucjtbob/Scratch/narps0-5_gl_entropy/narps_level2_logs
+#$ -wd /home/ucjtbob/Scratch/narps1-5_subval_entropy/narps_level2_logs
 # make n jobs run with different numbers
-#$ -t 1-108
+#$ -t 53
 
 #range should be 1-108 to run all subjects
 
@@ -55,7 +55,7 @@ export FSLSUBALREADYRUN=true
 TR=1.000000
 
 #parent_dir=/scratch/scratch/ucjtbob #if on myriad
-model=narps0-5_gl_entropy
+model=narps1-5_subval_entropy
 parent_dir=/scratch/scratch/ucjtbob/${model}
 
 #Main input directories.
@@ -75,10 +75,13 @@ job_num=$( expr $SGE_TASK_ID - 1 )
 SUBJ=${subfldrs[$job_num]:4:3}
 echo subject $SUBJ
 
-NUMRUNS=4
+#echo ${LEVEL1DIR}/sub{$SUBJ}_run*.feat
+all_runs=(${LEVEL1DIR}/sub${SUBJ}_run*.feat)
+NUMRUNS=${#all_runs[@]} #4
 echo $NUMRUNS runs
 
-orig_evs=4 #how many EVs in level 1 model?
+all_evs=(${LEVEL1DIR}/sub${SUBJ}_run01.feat/stats/cope*.nii.gz)
+orig_evs=${#all_evs[@]} #3 #how many EVs in level 1 model?
 echo $orig_evs EVs
 
 #Change this output folder depending on which level you are running.
@@ -87,7 +90,7 @@ OUTPUT=\"${OUTPUTDIR}/sub${SUBJ}\"
 
 if [ -d "${OUTPUTDIR}/sub${SUBJ}.gfeat/cope${orig_evs}.feat" ]; then
   echo cope ${orig_evs} directory exists
-  exit 1
+  #exit 1
 else
   echo cope ${orig_evs} directory doesnt exist
   rm -R ${OUTPUTDIR}/sub${SUBJ}.gfeat

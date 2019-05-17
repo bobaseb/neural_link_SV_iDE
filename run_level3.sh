@@ -32,12 +32,12 @@
 # 6. Set the working directory to somewhere in your scratch space.  This is
 # a necessary step with the upgraded software stack as compute nodes cannot
 # write to $HOME.
-#
+
 # Note: this directory MUST exist before your job starts!
 # Replace "<your_UCL_id>" with your UCL user ID :)
-#$ -wd /home/ucjtbob/Scratch/narps0-5_gl_entropy/narps_level3_logs
+#$ -wd /home/ucjtbob/Scratch/narps1-5_subval_entropy/narps_level3_logs
 # make n jobs run with different numbers
-#$ -t 9
+#$ -t 1-3
 
 #range should be 1-$NUMEVS to run all EVs (intercept,gains,losses,...entropy) for both conditions.
 #up to $((compare_cond_num)) to compare conditions
@@ -55,7 +55,7 @@ source $FSLDIR/etc/fslconf/fsl.sh
 export FSLSUBALREADYRUN=true
 
 #parent_dir=/scratch/scratch/ucjtbob #if on myriad
-model=narps0-5_gl_entropy #narps1_subval_entropy
+model=narps1-5_subval_entropy
 parent_dir=/scratch/scratch/ucjtbob/${model}
 
 #Main input directories.
@@ -66,9 +66,13 @@ FMRIDIR=/scratch/scratch/ucjuogu/NARPS2/derivatives/fmriprep
 OUTPUTDIR=${parent_dir}/narps_level3 #if on myriad
 
 #Setup some initial params
-compare_cond_num=9 #job number that compares losses between EqInd & EqR conditions
-NUMEVS=4 #How many EVs were in the level 1 model?
-sep_cond=1 #separate by condition?
+compare_cond_num=7 #job number that compares losses between EqInd & EqR conditions
+sep_cond=0 #separate by condition?
+
+all_evs=(${LEVEL2DIR}/sub001.gfeat/cope*.feat)
+NUMEVS=${#all_evs[@]} #3 #how many EVs in level 1 model?
+echo $NUMEVS EVs
+
 
 #Establish condition.
 if [[ $((SGE_TASK_ID)) -lt $((NUMEVS + 1)) ]]; then
@@ -134,14 +138,14 @@ done
 if [[ $((EVNUM)) == 1 ]]; then
   EV=intercept${condition}
 elif [[ $((EVNUM)) == 2 ]]; then
-  EV=gains${condition}
-  #EV=subval${condition}
+  #EV=gains${condition}
+  EV=subval${condition}
 elif [[ $((EVNUM)) == 3 ]]; then
   if [[ $((SGE_TASK_ID)) == $((compare_cond_num)) ]]; then
     EV=CompareLoss
   else
-    EV=losses${condition}
-    #EV=entropy${condition}
+    #EV=losses${condition}
+    EV=entropy${condition}
   fi
 elif [[ $((EVNUM)) == 4 ]]; then
   EV=entropy${condition} #this was for the entropy model

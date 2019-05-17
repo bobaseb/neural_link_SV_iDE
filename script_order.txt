@@ -22,6 +22,8 @@ fldrs=(*)
 for fldr in ${fldrs[@]}
 do
 
+#echo $fldr
+
 ls ${fldr} | wc -l
 
 done
