@@ -29,7 +29,7 @@
 
 # Note: this directory MUST exist before your job starts!
 # Replace "<your_UCL_id>" with your UCL user ID :)
-#$ -wd /home/ucjtbob/Scratch/narps1-5_subval_entropy/second_level_diffs_logs
+#$ -wd /home/ucjtbob/Scratch/narps_baseline_model/second_level_diffs_logs
 # make n jobs run with different numbers
 #$ -t 1-2
 
@@ -51,17 +51,24 @@ export FSLSUBALREADYRUN=true
 #make sure that second_level_diffs & second_level_diffs_logs exists!!!
 
 parent_dir=/scratch/scratch/ucjtbob #if on myriad
-model_dir=narps1-5_subval_entropy
+model_dir=narps_baseline_model #narps0-5_gl_entropy #narps1-5_subval_entropy
 level=narps_level2
 #narps1_subval_entropy/narps_level2/sub001.gfeat/cope2.feat/stats/zstat1.nii.gz
-signed_or_abs=abs #signed #
+signed_or_abs=signed #abs #
+stat1=G #gains DE, SV
+cope_num1=2 #normally 2 for gains & SV
+z_num1=1 #usually 1 if at 2nd level
+stat2=L #loss
+cope_num2=3 #normally 3 for loss & DE (DE can also be 4)
+z_num2=1 #usually 1 if at 2nd level
+#mkdir ${parent_dir}/${model_dir}/second_level_diffs
 mkdir ${parent_dir}/${model_dir}/second_level_diffs/${signed_or_abs}_diffs
 
 cd ${parent_dir}/${model_dir}/${level}
 subfldrs=(sub*/)
 
-subvals=()
-entropies=()
+stat1s=()
+stat2s=()
 for i in ${!subfldrs[@]}
 do
 SUBJ=${subfldrs[${i}]:3:3}
@@ -75,45 +82,53 @@ then
 fi
 
 #Stat filename.
-#fn_subval=${parent_dir}/${model_dir}/${level}/sub${SUBJ}.gfeat/cope2.feat/stats/zstat1.nii.gz
-#fn_entropy=${parent_dir}/${model_dir}/${level}/sub${SUBJ}.gfeat/cope3.feat/stats/zstat1.nii.gz
-fn_subval=${parent_dir}/${model_dir}/${level}/sub${SUBJ}.gfeat/cope2.feat/stats/zstat1.nii.gz
-fn_entropy=${parent_dir}/${model_dir}/${level}/sub${SUBJ}.gfeat/cope3.feat/stats/zstat2.nii.gz
+fn_stat1=${parent_dir}/${model_dir}/${level}/sub${SUBJ}.gfeat/cope${cope_num1}.feat/stats/zstat${z_num1}.nii.gz
+fn_stat2=${parent_dir}/${model_dir}/${level}/sub${SUBJ}.gfeat/cope${cope_num2}.feat/stats/zstat${z_num2}.nii.gz
+#fn_stat1=${parent_dir}/${model_dir}/${level}/sub${SUBJ}.gfeat/cope2.feat/stats/zstat1.nii.gz
+#fn_entropy=${parent_dir}/${model_dir}/${level}/sub${SUBJ}.gfeat/cope3.feat/stats/zstat2.nii.gz
 
-subvals+=(${fn_subval})
-entropies+=(${fn_entropy})
+stat1s+=(${fn_stat1})
+stat2s+=(${fn_stat2})
 done
 
 cd ${parent_dir}/${model_dir}/second_level_diffs/${signed_or_abs}_diffs
-subval_z_fn=${parent_dir}/${model_dir}/second_level_diffs/${signed_or_abs}_diffs/subval_z.nii.gz
-entropy_z_fn=${parent_dir}/${model_dir}/second_level_diffs/${signed_or_abs}_diffs/entropies_z.nii.gz
+stat1_z_fn=${parent_dir}/${model_dir}/second_level_diffs/${signed_or_abs}_diffs/${stat1}s_z.nii.gz
+stat2_z_fn=${parent_dir}/${model_dir}/second_level_diffs/${signed_or_abs}_diffs/${stat2}s_z.nii.gz
 
 if [[ $((SGE_TASK_ID)) -eq $((1)) ]]; then
-  which_sign=SV_minus_DE_${signed_or_abs}
+  which_sign=${stat1}_minus_${stat2}_${signed_or_abs}
 elif [[ $((SGE_TASK_ID)) -eq $((2)) ]]; then
-  which_sign=DE_minus_SV_${signed_or_abs}
+  which_sign=${stat2}_minus_${stat1}_${signed_or_abs}
 fi
 
-if [ ! -f ${subval_z_fn} ]; then
-    fslmerge -t ${subval_z_fn} ${subvals[@]}
+if [ ! -f ${stat1_z_fn} ]; then
+    fslmerge -t ${stat1_z_fn} ${stat1s[@]}
 fi
 
-if [ ! -f ${entropy_z_fn} ]; then
-    fslmerge -t ${entropy_z_fn} ${entropies[@]}
+if [ ! -f ${stat2_z_fn} ]; then
+    fslmerge -t ${stat2_z_fn} ${stat2s[@]}
 fi
 
-if [[ $((signed_or_abs)) -eq abs ]]; then
-  echo ${signed_or_abs} condition
-  fslmaths ${subval_z_fn} -abs ${subval_z_fn}
-  fslmaths ${entropy_z_fn} -abs ${entropy_z_fn}
+if [ "$signed_or_abs" == "abs" ]; then
+  echo abs condition
+  fslmaths ${stat1_z_fn} -abs ${stat1_z_fn}
+  fslmaths ${stat2_z_fn} -abs ${stat2_z_fn}
 fi
 
 if [[ $((SGE_TASK_ID)) -eq $((1)) ]]; then
-  fslmaths ${subval_z_fn} -sub  ${entropy_z_fn} ${which_sign}
+  fslmaths ${stat1_z_fn} -sub  ${stat2_z_fn} ${which_sign}
 elif [[ $((SGE_TASK_ID)) -eq $((2)) ]]; then
-  fslmaths  ${entropy_z_fn} -sub ${subval_z_fn} ${which_sign}
+  fslmaths  ${stat2_z_fn} -sub ${stat1_z_fn} ${which_sign}
 fi
 
 randomise_parallel -i ${which_sign}.nii.gz -o ${which_sign} -1 -T
 fslmaths ${which_sign}_tfce_corrp_tstat1 -thr 0.99 -bin -mul ${which_sign}_tstat1 ${which_sign}_thresh_tstat1
 cluster --in=${which_sign}_thresh_tstat1 --thresh=0.0001 --oindex=${which_sign}_cluster_index --olmax=${which_sign}_lmax.txt --osize=${which_sign}_cluster_size --mm
+
+#mb threshold is too big?
+#cd ${filtered_by_stat1}
+#fslnums=$(fslstats ${filtered_by_stat1}/zstat_min_${in_conj_prefix}_thresh.nii.gz -v)
+#TOT_VOXELS=${fslnums:0:(`expr index "$fslnums"  " "`)}
+#echo filtered_by_stat1
+#cluster -i ${filtered_by_stat1}/zstat_min_${in_conj_prefix}_thresh.nii.gz -t 2.3 -p 0.05 -d 0.0136188 --oindex=${in_conj_prefix}_cluster_index \
+#--olmax=${in_conj_prefix}_lmax.txt --osize=${in_conj_prefix}_cluster_size --volume=${TOT_VOXELS} > cluster_zstat1_${in_conj_prefix}.txt

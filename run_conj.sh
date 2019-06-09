@@ -9,7 +9,7 @@ source $FSLDIR/etc/fslconf/fsl.sh
 curr_model=narps1-5_subval_entropy
 OUTPUTDIR=/scratch/scratch/ucjtbob/${curr_model}
 
-alignment=zstat1s #flip_DE_sign #zstat1s
+alignment=flip_DE_sign #zstat1s
 
 smoothness=${OUTPUTDIR}/narps_level3/entropyAllSubs.gfeat/cope1.feat/stats/smoothness
 example_func=${OUTPUTDIR}/narps_level3/entropyAllSubs.gfeat/cope1.feat/example_func.nii.gz
@@ -72,11 +72,11 @@ cluster -i zstat_min_${in_conj_prefix}_thresh.nii.gz -t 2.3 -p 0.05 -d 0.0136188
 --osize=${in_conj_prefix}_cluster_size --volume=${TOT_VOXELS} > cluster_zstat1_${in_conj_prefix}.txt
 
 #CONTRAST
-
+alignment=flip_DE_sign #zstat1s #flip_DE_sign
 easy_thresh=/home/ucjtbob/narps_scripts/easythresh_conj.sh
 entropies_z_abs_bigger_msk=${OUTPUTDIR}/second_level_diffs/signed_diffs/${alignment}/entropies_z_abs_bigger_msk.nii.gz
 subval_z_abs_bigger_msk=${OUTPUTDIR}/second_level_diffs/signed_diffs/${alignment}/subval_z_abs_bigger_msk.nii.gz
-alignment=zstat1s #flip_DE_sign
+
 cd ${OUTPUTDIR}/second_level_diffs/signed_diffs/${alignment}/
 mkdir final_contrasts
 cd ${OUTPUTDIR}/second_level_diffs/signed_diffs/${alignment}/final_contrasts
@@ -88,7 +88,7 @@ mkdir $filtered_by_subval
 
 which_sign_all=(neg pos)
 which_var_all=(subval entropy)
-which_dir_all=(DE_minus_SV SV_minus_DE)
+which_dir_all=(DE_minus_SV SV_minus_DE) #which_dir as in which direction
 
 for which_sign in ${which_sign_all[@]}
 do
@@ -137,6 +137,17 @@ do
       done
   done
 done
+
+
+#abs cluster
+cd ${OUTPUTDIR}/second_level_diffs/abs_diffs
+in_conj_prefix=DE_minus_SV_abs #SV_minus_DE_abs #
+fslmaths ${in_conj_prefix}.nii.gz -thr 2.3 ${in_conj_prefix}_thresh2.nii.gz
+fslnums=$(fslstats ${in_conj_prefix}_thresh2.nii.gz -v)
+TOT_VOXELS=${fslnums:0:(`expr index "$fslnums"  " "`)}
+echo total non-zero voxels ${TOT_VOXELS}
+cluster -i ${in_conj_prefix}_thresh2.nii.gz -t 2.3 -p 0.05 -d 0.0136188 --oindex=${in_conj_prefix}_cluster_index --olmax=${in_conj_prefix}_lmax.txt \
+--osize=${in_conj_prefix}_cluster_size --volume=${TOT_VOXELS} > cluster_zstat1_${in_conj_prefix}.txt
 
 
 #bash $easy_thresh $entropy_minus_subval_zstat1 $pos_entropy_z 2.3 $example_func ${in_conj_prefix} #effect of pos entropy
