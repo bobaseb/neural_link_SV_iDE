@@ -23,8 +23,10 @@ def compute_ratios(x_over_y,all_ratios):
     x_over_y_r=[]
     x_over_y_p=[]
     for ratio in all_ratios:
-        x_over_y_r.append(stats.pearsonr(x_over_y,ratio)[0])
-        x_over_y_p.append(stats.pearsonr(x_over_y,ratio)[1])
+        #x_over_y_r.append(stats.pearsonr(x_over_y,ratio)[0])
+        #x_over_y_p.append(stats.pearsonr(x_over_y,ratio)[1])
+        x_over_y_r.append(stats.spearmanr(x_over_y,ratio)[0])
+        x_over_y_p.append(stats.spearmanr(x_over_y,ratio)[1])
     return x_over_y_r, x_over_y_p
 
 def contingencies(ds_all,nums):
@@ -245,6 +247,7 @@ else:
     loss_over_gain = np.hstack(loss_over_gain)
     gain_over_loss_r_ij, gain_over_loss_p_ij = compute_ratios(gain_over_loss,all_ratios_ij)
     loss_over_gain_r_ij, loss_over_gain_p_ij = compute_ratios(loss_over_gain,all_ratios_ij)
+    loss_over_gain = loss_over_gain*-1
     plt.plot(loss_over_gain,all_ratios_ij[0], '.')
     plt.xlabel('Loss aversion (behavior)', fontsize=30)
     plt.ylabel('# Loss voxels / # Gain voxels', fontsize=30)
