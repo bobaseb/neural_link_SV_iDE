@@ -16,6 +16,7 @@ Need to run for every new model
 6. run_level3.sh w/ *_maker.sh
 7. masking.sh
 
+8006313197 bfsfcu #
 
 #check number of files per dir
 fldrs=(*)
@@ -29,7 +30,7 @@ ls ${fldr} | wc -l
 done
 
 #Use this to tar up models
-fldrs=(*)
+fldrs=(*.feat)
 for fldr in ${fldrs[@]}
 do
 

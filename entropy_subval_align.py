@@ -52,7 +52,7 @@ else:
     import statsmodels.api as sm
     from statsmodels.formula.api import ols
 
-G_L_2x2 = 1
+G_L_2x2 = 0
 if G_L_2x2==1:
     model_dir = '/narps_baseline_model' #'/narps0-5_gl_entropy' #
 else:
@@ -131,9 +131,14 @@ subval_betas = pwd + model_dir + '/narps_level3/subvalAllSubs.gfeat/cope1.feat/s
 msk = pwd + model_dir + intrcpt_msk_dir
 #msk = None
 #msk = ramygdala
-#corrfig_name = 'whole_brain_corr'
+corrfig_name = 'whole_brain_corr' # 'ramygdala_corr_ide'#
 
-mk_plot=0
+mk_plot=1
+ide=1
+
+if ide==1:
+    var_name = 'Inverse Decision Entropy'
+
 if mk_plot==1:
     #from matplotlib.pyplot import figure
     #figure(num=None, figsize=(8, 6), dpi=80, facecolor='w', edgecolor='k')
@@ -143,6 +148,8 @@ if mk_plot==1:
     z_subval_betas = (ds_subval_betas.samples - np.mean(ds_subval_betas.samples))/np.std(ds_subval_betas.samples)
     ds_mean_betas = (z_subval_betas - z_entropy_betas)/2
     x = z_entropy_betas[0]
+    if ide==1:
+        x = x*-1
     y = z_subval_betas[0]
     stats.pearsonr(x,y)
     mk_mn_betas=0
@@ -153,12 +160,12 @@ if mk_plot==1:
     b, m = polyfit(y, x, 1)
     plt.plot(x, y, '.')
     plt.plot(x, b + m * x, '-')
-    plt.xlabel('Decision entropy', fontsize=30)
+    plt.xlabel(var_name, fontsize=30)
     plt.xticks(fontsize = 20)
     plt.ylabel('Subjective Value', fontsize=30)
     plt.yticks(fontsize = 20)
     plt.subplots_adjust(left=0.25, bottom=0.25)
-    #plt.savefig(corrfig_name + '.png', bbox_inches='tight')
+    plt.savefig(corrfig_name + '.png', bbox_inches='tight')
     plt.show()
 
 by_sub=1
