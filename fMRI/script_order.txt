@@ -16,8 +16,6 @@ Need to run for every new model
 6. run_level3.sh w/ *_maker.sh
 7. masking.sh
 
-8006313197 bfsfcu #
-
 #check number of files per dir
 fldrs=(*)
 for fldr in ${fldrs[@]}
@@ -71,9 +69,6 @@ if [ ! -d "${sub_fldr}/stats" ]; then
 fi
 
 done
-
-
-#Ethics number: EP 2017 011
 
 
 #Use this to delete filtered_func
