@@ -1,9 +1,9 @@
-source /etc/profile.d/modules.sh
-module unload compilers
-module load compilers/gnu/4.9.2
-module load swig/3.0.7/gnu-4.9.2
-module load python2/recommended
-python
+#source /etc/profile.d/modules.sh
+#module unload compilers
+#module load compilers/gnu/4.9.2
+#module load swig/3.0.7/gnu-4.9.2
+#module load python2/recommended
+#python
 
 import sys
 import pandas as pd
@@ -49,6 +49,7 @@ if on_myriad==1:
     pwd = '/scratch/scratch/ucjtbob'
 else:
     pwd = '/mnt/myriad2'
+    #pwd = '/mnt/myriad'
     import statsmodels.api as sm
     from statsmodels.formula.api import ols
 
@@ -130,8 +131,8 @@ subval_betas = pwd + model_dir + '/narps_level3/subvalAllSubs.gfeat/cope1.feat/s
 
 msk = pwd + model_dir + intrcpt_msk_dir
 #msk = None
-#msk = ramygdala
-corrfig_name = 'whole_brain_corr' # 'ramygdala_corr_ide'#
+#msk = ramygdala# lamygdala # fmc# raccumbens# laccumbens#
+corrfig_name = 'whole_brain_corr_test'# 'ramygdala_corr_ide'# 'lamygdala_corr_ide'# 'fmc_corr_ide'# 'raccumbens_corr_ide'# 'laccumbens_corr_ide'#
 
 mk_plot=1
 ide=1
@@ -152,21 +153,37 @@ if mk_plot==1:
         x = x*-1
     y = z_subval_betas[0]
     stats.pearsonr(x,y)
+    reduced_pearson=1
+    if reduced_pearson==1:
+        x[x>2] = np.nan
+        y[y>-7.5] = np.nan
+        stats.spearmanr(x,y, nan_policy='omit')
     mk_mn_betas=0
     if mk_mn_betas==1:
         nimg = make_neurimg(ds_entropy_betas,ds_mean_betas)
         nimg.to_filename(pwd + model_dir + '/narps_level3/mn_subval_entropy_betas.nii.gz')
-    # Fit with polyfit
-    b, m = polyfit(y, x, 1)
-    plt.plot(x, y, '.')
-    plt.plot(x, b + m * x, '-')
-    plt.xlabel(var_name, fontsize=30)
-    plt.xticks(fontsize = 20)
-    plt.ylabel('Subjective Value', fontsize=30)
-    plt.yticks(fontsize = 20)
-    plt.subplots_adjust(left=0.25, bottom=0.25)
-    plt.savefig(corrfig_name + '.png', bbox_inches='tight')
-    plt.show()
+    mk_subset_WB=0
+    if mk_subset_WB==1:
+        z_entropy_betas[z_entropy_betas>2] = 0
+        z_subval_betas[z_subval_betas>-7.5] = 0
+        ds_mean_betas2 = (z_subval_betas - z_entropy_betas)/2
+        nimg = make_neurimg(ds_entropy_betas,ds_mean_betas2)
+        nimg.to_filename('subset_test.nii.gz')
+    plot_corr=0
+    if plot_corr==1:
+        # Fit with polyfit
+        b, m = polyfit(y, x, 1)
+        plt.plot(x, y, '.')
+        plt.plot(x, b + m * x, '-')
+        plt.xlabel(var_name, fontsize=30)
+        plt.xticks(fontsize = 20)
+        plt.ylabel('Subjective Value', fontsize=30)
+        plt.yticks(fontsize = 20)
+        plt.xlim([-3, 4]) #for whole brain -7,5
+        plt.ylim([-4, 6]) #for whole brain -13,8
+        plt.subplots_adjust(left=0.25, bottom=0.25)
+        plt.savefig(corrfig_name + '.png', bbox_inches='tight')
+        plt.show()
 
 by_sub=1
 if by_sub==0:
