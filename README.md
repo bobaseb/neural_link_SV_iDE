@@ -6,4 +6,4 @@ Code repository for an fMRI study linking subjective value with inverse decision
 
 ## Requirements
 
-The repository is divided into behavioral and fMRI analysis. Scripts are in python and bash. Requirements include Python 2.7 or above, FSL 5.0.9 and python packages like Numpy, Pandas, Statsmodels, Scipy and PyMVPA 2.6.5.dev1 (which runs best on Python 2.7).
+The repository is divided into behavioral and fMRI analysis. Scripts are in python and bash. Requirements include Python 2.7 or above, FSL 5.0.9 and python packages like Numpy, Pandas, Seaborn, Statsmodels, Scipy and PyMVPA 2.6.5.dev1 (which runs best on Python 2.7).
