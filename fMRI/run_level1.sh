@@ -27,7 +27,7 @@
 #$ -pe smp 1
 
 # 3. Set the name of the job.
-#$ -N narps_level1-5_run1
+#$ -N narps_level1-5_run4
 
 # 6. Set the working directory to somewhere in your scratch space.  This is
 # a necessary step with the upgraded software stack as compute nodes cannot
@@ -47,7 +47,7 @@ curr_model=narps1-5_conflict #place above for logs as well & change MODEL!!!
 #range should be 1-108 to run all subjects
 
 #OJO: Folders that need to be in place prior to running are narps_level1_logs, narps_level1, narps_fsf
-#OJO: The model folder also needs the MNI152 brain (1mm for NARPS)
+#OJO: The model folder also needs the MNI152 brain (1mm for NARPS); now in MY_SCRATCH
 #For each run, change job name and RUN variable below
 
 # 7. Setup FSL runtime environment
@@ -75,7 +75,9 @@ BEHAVIORDIR2=/home/ucjtbob/narps_scripts/data/behavior
 #Main (parent) output directory.
 #OUTPUTDIR=/mnt/love12/home/seb/tmp_NARPS #example directory if mounted locally
 #OUTPUTDIR=/scratch/scratch/ucjtbob #if on myriad
-OUTPUTDIR=/scratch/scratch/ucjtbob/${curr_model}
+OUTPUTDIR=/scratch/scratch/skgtdnb/${curr_model}
+#OUTPUTDIR=/scratch/scratch/ucjtbob/${curr_model}
+MY_SCRATCH=/scratch/scratch/ucjtbob/
 
 currdir=$(pwd)
 cd $FMRIDIR
@@ -94,7 +96,7 @@ echo subject $SUBJ
 #for RUN in 01 #02 03 04
 #do
 
-RUN=01
+RUN=04
 echo run $RUN
 
 #Remove the trailing zeros for some of the files below.
@@ -126,7 +128,7 @@ INPUTIMG=\"${FMRIDIR}/sub-${SUBJ}/func/sub-${SUBJ}_task-MGT_run-${RUN}_bold_spac
 INPUTIMGr=${FMRIDIR}/sub-${SUBJ}/func/sub-${SUBJ}_task-MGT_run-${RUN}_bold_space-MNI152NLin2009cAsym_preproc_brain
 
 #Also define where the structural template we are using is.
-STRUCTREF=\"${OUTPUTDIR}/MNI152_T1_1mm_brain\" #if on myriad
+STRUCTREF=\"${MY_SCRATCH}/MNI152_T1_1mm_brain\" #if on myriad
 #STRUCTREF=\"/usr/local/fsl/data/standard/MNI152_T1_1mm_brain\" #example local directory
 
 #Setup some specific EV paths.
@@ -172,7 +174,7 @@ TOT_VOXELS=${fslnums:0:(`expr index "$fslnums"  " "`)}
 echo total voxels ${TOT_VOXELS}
 
 #Create the .fsf file.
-source /home/ucjtbob/narps_scripts/narps_level1_fsf_maker.sh
+source /home/ucjtbob/narps_scripts/fMRI/narps_level1_fsf_maker.sh
 wait
 
 #Finally, run FEAT.
