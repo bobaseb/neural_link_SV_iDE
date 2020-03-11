@@ -27,7 +27,7 @@
 #$ -pe smp 1
 
 # 3. Set the name of the job.
-#$ -N narps_level1-5_run4
+#$ -N narps_level1-5_run1
 
 # 6. Set the working directory to somewhere in your scratch space.  This is
 # a necessary step with the upgraded software stack as compute nodes cannot
@@ -35,12 +35,14 @@
 #
 # Note: this directory MUST exist before your job starts!
 # Replace "<your_UCL_id>" with your UCL user ID :)
-#$ -wd /home/ucjtbob/Scratch/narps1-5_subval_entropy/narps_level1_logs
+#$ -wd /scratch/scratch/skgtdnb/narps1-5_conflict/narps_level1_logs
+# -wd /home/ucjtbob/Scratch/narps1-5_subval_entropy/narps_level1_logs
 # make n jobs run with different numbers
 #$ -t 1-108
 
-curr_model=narps1-5_subval_entropy #place above for logs as well & change MODEL!!!
+curr_model=narps1-5_conflict #place above for logs as well & change MODEL!!!
 #narps1_only_subval_model #narps1_subval_entropy #narps1_only_entropy_model
+#narps1-5_subval_entropy
 
 #range should be 1-108 to run all subjects
 
@@ -68,6 +70,7 @@ TMPDIR=/scratch/scratch/ucjuogu #if on myriad
 #TMPDIR=/mnt/love12/home/seb/myriad #example directory if mounted locally
 FMRIDIR=${TMPDIR}/NARPS2/derivatives/fmriprep
 BEHAVIORDIR=${TMPDIR}/behavior
+BEHAVIORDIR2=/home/ucjtbob/narps_scripts/data/behavior
 
 #Main (parent) output directory.
 #OUTPUTDIR=/mnt/love12/home/seb/tmp_NARPS #example directory if mounted locally
@@ -91,7 +94,7 @@ echo subject $SUBJ
 #for RUN in 01 #02 03 04
 #do
 
-RUN=04
+RUN=01
 echo run $RUN
 
 #Remove the trailing zeros for some of the files below.
@@ -133,6 +136,7 @@ GAINS_EV=\"${BEHAVIORDIR}/mc_gain/${SUBJr}_${RUNr}_mc_gain.txt\"
 LOSSES_EV=\"${BEHAVIORDIR}/mc_loss/${SUBJr}_${RUNr}_mc_loss.txt\"
 ENTROPY_EV=\"${BEHAVIORDIR}/mc_entropy/${SUBJr}_${RUNr}_mc_entropy.txt\"
 SUBVAL_EV=\"${BEHAVIORDIR}/mc_subjective_value/${SUBJr}_${RUNr}_mc_subjective_value.txt\"
+CONFLICT_EV=\"${BEHAVIORDIR2}/model_conflict/${SUBJr}_${RUNr}_model_conflict.txt\"
 
 #Setup the current model
 #ev_names=(Intercept Gains Losses)
@@ -141,8 +145,11 @@ SUBVAL_EV=\"${BEHAVIORDIR}/mc_subjective_value/${SUBJr}_${RUNr}_mc_subjective_va
 #ev_names=(Intercept Gains Losses Entropy)
 #ev_paths=(${INTERCEPT_EV} ${GAINS_EV} ${LOSSES_EV} ${ENTROPY_EV})
 
-ev_names=(Intercept SubVal Entropy) #SubVal is subjective value
-ev_paths=(${INTERCEPT_EV} ${SUBVAL_EV} ${ENTROPY_EV})
+#ev_names=(Intercept SubVal Entropy) #SubVal is subjective value
+#ev_paths=(${INTERCEPT_EV} ${SUBVAL_EV} ${ENTROPY_EV})
+
+ev_names=(Intercept Conflict) #SubVal is subjective value
+ev_paths=(${INTERCEPT_EV} ${CONFLICT_EV})
 
 #ev_names=(Intercept Entropy) #SubVal is subjective value
 #ev_paths=(${INTERCEPT_EV} ${ENTROPY_EV})
