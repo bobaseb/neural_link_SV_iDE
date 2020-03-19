@@ -35,10 +35,12 @@
 
 # Note: this directory MUST exist before your job starts!
 # Replace "<your_UCL_id>" with your UCL user ID :)
-#$ -wd /home/ucjtbob/Scratch/narps1-5_subval_entropy/narps_level3_logs
+#$ -wd /scratch/scratch/skgtdnb/narps1-5_conflict2/narps_level3_logs
+# -wd /scratch/scratch/skgtdnb/narps1-5_subvalY_entropy/narps_level3_logs
+# -wd /home/ucjtbob/Scratch/narps1-5_subval_entropy/narps_level3_logs
 # make n jobs run with different numbers
 #$ -t 1-3
-
+#1-4 #1-3 #1-2
 #range should be 1-$NUMEVS to run all EVs (intercept,gains,losses,...entropy) for both conditions.
 #up to $((compare_cond_num)) to compare conditions
 
@@ -55,8 +57,9 @@ source $FSLDIR/etc/fslconf/fsl.sh
 export FSLSUBALREADYRUN=true
 
 #parent_dir=/scratch/scratch/ucjtbob #if on myriad
-model=narps1-5_subval_entropy
-parent_dir=/scratch/scratch/ucjtbob/${model}
+model=narps1-5_conflict2 #narps1-5_subvalY_entropy #narps1-5_conflict #narps1-5_subval_entropy
+which_scratch=skgtdnb
+parent_dir=/scratch/scratch/${which_scratch}/${model}
 
 #Main input directories.
 LEVEL2DIR=${parent_dir}/narps_level2 #if on myriad
@@ -68,6 +71,11 @@ OUTPUTDIR=${parent_dir}/narps_level3 #if on myriad
 #Setup some initial params
 compare_cond_num=7 #job number that compares losses between EqInd & EqR conditions
 sep_cond=0 #separate by condition?
+
+model_ev1=Intercept
+model_ev2=Conflict #SubValY #Conflict #
+model_ev3=SubVal #Entropy
+#model_ev4=Entropy
 
 all_evs=(${LEVEL2DIR}/sub001.gfeat/cope*.feat)
 NUMEVS=${#all_evs[@]} #3 #how many EVs in level 1 model?
@@ -136,19 +144,19 @@ done
 
 #Give the level 3 test a name. You can change based on level 1 model.
 if [[ $((EVNUM)) == 1 ]]; then
-  EV=intercept${condition}
+  EV=${model_ev1}${condition} #intercept
 elif [[ $((EVNUM)) == 2 ]]; then
   #EV=gains${condition}
-  EV=subval${condition}
+  EV=${model_ev2}${condition} #subval/conflict
 elif [[ $((EVNUM)) == 3 ]]; then
   if [[ $((SGE_TASK_ID)) == $((compare_cond_num)) ]]; then
     EV=CompareLoss
   else
     #EV=losses${condition}
-    EV=entropy${condition}
+    EV=${model_ev3}${condition} #entropy
   fi
 elif [[ $((EVNUM)) == 4 ]]; then
-  EV=entropy${condition} #this was for the entropy model
+  EV=${model_ev4}${condition} #this was for the entropy model, also conflict3
 fi
 
 echo Running level 3 on ${EV} Cope.
@@ -175,7 +183,9 @@ NUMINPUTCOPESALL=$((${#EqualIndiff[@]} + ${#EqualRange[@]}))
 echo $NUMINPUTCOPESALL subjects total both conditions
 
 #Also define where the structural template we are using is. Not really needed if using fmriprep data.
-STRUCTREF=\"${parent_dir}/MNI152_T1_1mm_brain\" #if on myriad
+#STRUCTREF=\"${parent_dir}/MNI152_T1_1mm_brain\" #if on myriad
+MY_SCRATCH=/scratch/scratch/ucjtbob/
+STRUCTREF=\"${MY_SCRATCH}/MNI152_T1_1mm_brain\"
 
 #Select INPUTCOPES (changes for job number $((compare_cond_num)))
 if [[ $((sep_cond)) -eq 1 ]]; then
@@ -234,9 +244,9 @@ done
 
 #Create the .fsf file.
 if [[ $((SGE_TASK_ID)) -lt $((compare_cond_num)) ]]; then
-source /home/ucjtbob/narps_scripts/narps_level3_fsf_maker.sh
+source /home/ucjtbob/narps_scripts/fMRI/narps_level3_fsf_maker.sh
 else
-source /home/ucjtbob/narps_scripts/narps_level3_fsf_maker_h9.sh
+source /home/ucjtbob/narps_scripts/fMRI/narps_level3_fsf_maker_h9.sh
 fi
 wait
 

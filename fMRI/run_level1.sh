@@ -35,14 +35,16 @@
 #
 # Note: this directory MUST exist before your job starts!
 # Replace "<your_UCL_id>" with your UCL user ID :)
-#$ -wd /scratch/scratch/skgtdnb/narps1-5_conflict/narps_level1_logs
+#$ -wd /scratch/scratch/skgtdnb/narps1-5_conflict2/narps_level1_logs
+# -wd /scratch/scratch/skgtdnb/narps1-5_subvalY_entropy/narps_level1_logs
 # -wd /home/ucjtbob/Scratch/narps1-5_subval_entropy/narps_level1_logs
 # make n jobs run with different numbers
 #$ -t 1-108
 
-curr_model=narps1-5_conflict #place above for logs as well & change MODEL!!!
+curr_model=narps1-5_conflict2 #narps1-5_subvalY_entropy
+#narps1-5_conflict #place above for logs as well & change MODEL!!!
 #narps1_only_subval_model #narps1_subval_entropy #narps1_only_entropy_model
-#narps1-5_subval_entropy
+#narps1-5_subvalY_entropy
 
 #range should be 1-108 to run all subjects
 
@@ -75,7 +77,8 @@ BEHAVIORDIR2=/home/ucjtbob/narps_scripts/data/behavior
 #Main (parent) output directory.
 #OUTPUTDIR=/mnt/love12/home/seb/tmp_NARPS #example directory if mounted locally
 #OUTPUTDIR=/scratch/scratch/ucjtbob #if on myriad
-OUTPUTDIR=/scratch/scratch/skgtdnb/${curr_model}
+which_scratch=skgtdnb #ucjtbob
+OUTPUTDIR=/scratch/scratch/${which_scratch}/${curr_model}
 #OUTPUTDIR=/scratch/scratch/ucjtbob/${curr_model}
 MY_SCRATCH=/scratch/scratch/ucjtbob/
 
@@ -138,6 +141,7 @@ GAINS_EV=\"${BEHAVIORDIR}/mc_gain/${SUBJr}_${RUNr}_mc_gain.txt\"
 LOSSES_EV=\"${BEHAVIORDIR}/mc_loss/${SUBJr}_${RUNr}_mc_loss.txt\"
 ENTROPY_EV=\"${BEHAVIORDIR}/mc_entropy/${SUBJr}_${RUNr}_mc_entropy.txt\"
 SUBVAL_EV=\"${BEHAVIORDIR}/mc_subjective_value/${SUBJr}_${RUNr}_mc_subjective_value.txt\"
+SUBVALY_EV=\"${BEHAVIORDIR2}/subjective_value_y/${SUBJr}_${RUNr}_subjective_value_y.txt\"
 CONFLICT_EV=\"${BEHAVIORDIR2}/model_conflict/${SUBJr}_${RUNr}_model_conflict.txt\"
 
 #Setup the current model
@@ -150,8 +154,17 @@ CONFLICT_EV=\"${BEHAVIORDIR2}/model_conflict/${SUBJr}_${RUNr}_model_conflict.txt
 #ev_names=(Intercept SubVal Entropy) #SubVal is subjective value
 #ev_paths=(${INTERCEPT_EV} ${SUBVAL_EV} ${ENTROPY_EV})
 
-ev_names=(Intercept Conflict) #SubVal is subjective value
-ev_paths=(${INTERCEPT_EV} ${CONFLICT_EV})
+#ev_names=(Intercept SubValY Entropy) #SubVal is subjective value
+#ev_paths=(${INTERCEPT_EV} ${SUBVALY_EV} ${ENTROPY_EV})
+
+#ev_names=(Intercept Conflict) #SubVal is subjective value
+#ev_paths=(${INTERCEPT_EV} ${CONFLICT_EV})
+
+ev_names=(Intercept Conflict SubVal) #SubVal is subjective value
+ev_paths=(${INTERCEPT_EV} ${CONFLICT_EV} ${SUBVAL_EV})
+
+#ev_names=(Intercept Conflict SubVal Entropy) #SubVal is subjective value
+#ev_paths=(${INTERCEPT_EV} ${CONFLICT_EV} ${SUBVAL_EV} ${ENTROPY_EV})
 
 #ev_names=(Intercept Entropy) #SubVal is subjective value
 #ev_paths=(${INTERCEPT_EV} ${ENTROPY_EV})

@@ -33,9 +33,11 @@
 #
 # Note: this directory MUST exist before your job starts!
 # Replace "<your_UCL_id>" with your UCL user ID :)
-#$ -wd /home/ucjtbob/Scratch/narps1-5_subval_entropy/narps_level2_logs
+#$ -wd /scratch/scratch/skgtdnb/narps1-5_conflict2/narps_level2_logs
+# -wd /home/ucjtbob/Scratch/narps1-5_subval_entropy/narps_level2_logs
+# -wd /scratch/scratch/skgtdnb/narps1-5_subvalY_entropy/narps_level2_logs
 # make n jobs run with different numbers
-#$ -t 53
+#$ -t 1-108
 
 #range should be 1-108 to run all subjects
 
@@ -54,9 +56,10 @@ export FSLSUBALREADYRUN=true
 #Set the fmri repetition time (TR) here.
 TR=1.000000
 
+which_scratch=skgtdnb #ucjtbob
 #parent_dir=/scratch/scratch/ucjtbob #if on myriad
-model=narps1-5_subval_entropy
-parent_dir=/scratch/scratch/ucjtbob/${model}
+model=narps1-5_conflict2 #narps1-5_subvalY_entropy #narps1-5_subval_entropy
+parent_dir=/scratch/scratch/${which_scratch}/${model}
 
 #Main input directories.
 LEVEL1DIR=${parent_dir}/narps_level1 #if on myriad
@@ -106,10 +109,12 @@ FEATDIR3=${parent_dir}/narps_level1/sub${SUBJ}_run03.feat
 FEATDIR4=${parent_dir}/narps_level1/sub${SUBJ}_run04.feat
 
 #Also define where the structural template we are using is. Not really needed for level2.
-STRUCTREF=\"${parent_dir}/MNI152_T1_1mm_brain\" #if on myriad
+#STRUCTREF=\"${parent_dir}/MNI152_T1_1mm_brain\" #if on myriad
+MY_SCRATCH=/scratch/scratch/ucjtbob/
+STRUCTREF=\"${MY_SCRATCH}/MNI152_T1_1mm_brain\"
 
 #Create the .fsf file.
-source /home/ucjtbob/narps_scripts/narps_level2_fsf_maker.sh
+source /home/ucjtbob/narps_scripts/fMRI/narps_level2_fsf_maker.sh
 wait
 
 #Finally, run FEAT.

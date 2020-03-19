@@ -10,9 +10,12 @@ FSLv=5.0.9
 module load fsl/${FSLv}
 source $FSLDIR/etc/fslconf/fsl.sh
 
-model=narps1-5_gl_entropy
+model=narps1-5_conflict2 #narps1-5_subvalY_entropy #narps1-5_conflict
+#narps1-5_gl_entropy
 
-parent_dir=/scratch/scratch/ucjtbob/${model}/narps_level1
+which_scratch=skgtdnb #ucjtbob
+
+parent_dir=/scratch/scratch/${which_scratch}/${model}/narps_level1
 fmriprep_dir=/scratch/scratch/ucjuogu/NARPS2/derivatives/fmriprep
 
 cd ${fmriprep_dir}
