@@ -27,6 +27,20 @@ ls ${fldr} | wc -l
 
 done
 
+#erase filtered fmri images
+fldrs=(*)
+for fldr in ${fldrs[@]}
+do
+
+cd $fldr
+
+rm filtered_func_data.nii.gz
+
+cd ..
+
+done
+
+
 #Use this to tar up models
 fldrs=(*.feat)
 for fldr in ${fldrs[@]}
