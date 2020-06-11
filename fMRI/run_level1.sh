@@ -138,11 +138,11 @@ STRUCTREF=\"${MY_SCRATCH}/MNI152_T1_1mm_brain\" #if on myriad
 
 #Setup some specific EV paths.
 CONFOUND_EVS=\"${FMRIDIR}/sub-${SUBJ}/func/sub-${SUBJ}_task-MGT_run-${RUN}_bold_confounds_reduced.txt\"
-INTERCEPT_EV=\"${BEHAVIORDIR}/intercept/${SUBJr}_${RUNr}_intercept.txt\"
-GAINS_EV=\"${BEHAVIORDIR}/mc_gain/${SUBJr}_${RUNr}_mc_gain.txt\"
-LOSSES_EV=\"${BEHAVIORDIR}/mc_loss/${SUBJr}_${RUNr}_mc_loss.txt\"
-ENTROPY_EV=\"${BEHAVIORDIR}/mc_entropy/${SUBJr}_${RUNr}_mc_entropy.txt\"
-SUBVAL_EV=\"${BEHAVIORDIR}/mc_subjective_value/${SUBJr}_${RUNr}_mc_subjective_value.txt\"
+INTERCEPT_EV=\"${BEHAVIORDIR2}/intercept/${SUBJr}_${RUNr}_intercept.txt\"
+GAINS_EV=\"${BEHAVIORDIR2}/mc_gain/${SUBJr}_${RUNr}_mc_gain.txt\"
+LOSSES_EV=\"${BEHAVIORDIR2}/mc_loss/${SUBJr}_${RUNr}_mc_loss.txt\"
+ENTROPY_EV=\"${BEHAVIORDIR2}/mc_entropy/${SUBJr}_${RUNr}_mc_entropy.txt\"
+SUBVAL_EV=\"${BEHAVIORDIR2}/mc_subjective_value/${SUBJr}_${RUNr}_mc_subjective_value.txt\"
 SUBVALY_EV=\"${BEHAVIORDIR2}/subjective_value_y/${SUBJr}_${RUNr}_subjective_value_y.txt\"
 CONFLICT_EV=\"${BEHAVIORDIR2}/model_conflict/${SUBJr}_${RUNr}_model_conflict.txt\"
 CHOSEN_EV=\"${BEHAVIORDIR2}/chosen/${SUBJr}_${RUNr}_chosen.txt\"

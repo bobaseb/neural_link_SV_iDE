@@ -33,7 +33,7 @@
 #
 # Note: this directory MUST exist before your job starts!
 # Replace "<your_UCL_id>" with your UCL user ID :)
-#$ -wd /scratch/scratch/skgtdnb/narps1-5_subval_choice/narps_level2_logs
+#$ -wd /scratch/scratch/skgtdnb/narps1-5_subval_split/narps_level2_logs
 # -wd /home/ucjtbob/Scratch/narps1-5_subval_entropy/narps_level2_logs
 # -wd /scratch/scratch/skgtdnb/narps1-5_subvalY_entropy/narps_level2_logs
 # make n jobs run with different numbers
@@ -58,7 +58,7 @@ TR=1.000000
 
 which_scratch=skgtdnb #ucjtbob
 #parent_dir=/scratch/scratch/ucjtbob #if on myriad
-model=narps1-5_subval_choice #_choice #narps1-5_subvalY_entropy #narps1-5_subval_entropy
+model=narps1-5_subval_split #_choice #narps1-5_subvalY_entropy #narps1-5_subval_entropy
 parent_dir=/scratch/scratch/${which_scratch}/${model}
 
 #Main input directories.

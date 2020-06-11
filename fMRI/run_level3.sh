@@ -35,11 +35,11 @@
 
 # Note: this directory MUST exist before your job starts!
 # Replace "<your_UCL_id>" with your UCL user ID :)
-#$ -wd /scratch/scratch/skgtdnb/narps1-5_subval_choice/narps_level3_logs
+#$ -wd /scratch/scratch/skgtdnb/narps1-5_subval_split/narps_level3_logs
 # -wd /scratch/scratch/skgtdnb/narps1-5_subvalY_entropy/narps_level3_logs
 # -wd /home/ucjtbob/Scratch/narps1-5_subval_entropy/narps_level3_logs
 # make n jobs run with different numbers
-#$ -t 1-3
+#$ -t 1-4
 #1-5 #1-4 #1-3 #1-2
 #range should be 1-$NUMEVS to run all EVs (intercept,gains,losses,...entropy) for both conditions.
 #up to $((compare_cond_num)) to compare conditions
@@ -57,7 +57,7 @@ source $FSLDIR/etc/fslconf/fsl.sh
 export FSLSUBALREADYRUN=true
 
 #parent_dir=/scratch/scratch/ucjtbob #if on myriad
-model=narps1-5_subval_choice #_choice #narps1-5_subvalY_entropy #narps1-5_conflict #narps1-5_subval_entropy
+model=narps1-5_subval_split #_choice #narps1-5_subvalY_entropy #narps1-5_conflict #narps1-5_subval_entropy
 which_scratch=skgtdnb
 parent_dir=/scratch/scratch/${which_scratch}/${model}
 
@@ -73,9 +73,9 @@ compare_cond_num=7 #job number that compares losses between EqInd & EqR conditio
 sep_cond=0 #separate by condition?
 
 model_ev1=Intercept
-model_ev2=SubVal #SubValY #Conflict #
-model_ev3=Chosen #Entropy
-#model_ev4=SubVal
+model_ev2=SubValPos #SubValY #Conflict #
+model_ev3=SubValNeg #Entropy
+model_ev4=Entropy #SubVal
 #model_ev5=Chosen
 #model_ev6=PCumConflict
 
