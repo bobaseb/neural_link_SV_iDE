@@ -27,7 +27,7 @@
 #$ -pe smp 1
 
 # 3. Set the name of the job.
-#$ -N narps_level1-5_run4
+#$ -N narps_level1-5_run1
 
 # 6. Set the working directory to somewhere in your scratch space.  This is
 # a necessary step with the upgraded software stack as compute nodes cannot
@@ -35,13 +35,15 @@
 #
 # Note: this directory MUST exist before your job starts!
 # Replace "<your_UCL_id>" with your UCL user ID :)
-#$ -wd /scratch/scratch/skgtdnb/narps1-5_conflict2/narps_level1_logs
+#$ -wd /scratch/scratch/skgtdnb/narps1-5_subval_split/narps_level1_logs
 # -wd /scratch/scratch/skgtdnb/narps1-5_subvalY_entropy/narps_level1_logs
 # -wd /home/ucjtbob/Scratch/narps1-5_subval_entropy/narps_level1_logs
 # make n jobs run with different numbers
 #$ -t 1-108
 
-curr_model=narps1-5_conflict2 #narps1-5_subvalY_entropy
+curr_model=narps1-5_subval_split
+#narps_conflict_choice is based on decision timing
+#narps1-5_conflict2 #narps1-5_subvalY_entropy
 #narps1-5_conflict #place above for logs as well & change MODEL!!!
 #narps1_only_subval_model #narps1_subval_entropy #narps1_only_entropy_model
 #narps1-5_subvalY_entropy
@@ -136,13 +138,22 @@ STRUCTREF=\"${MY_SCRATCH}/MNI152_T1_1mm_brain\" #if on myriad
 
 #Setup some specific EV paths.
 CONFOUND_EVS=\"${FMRIDIR}/sub-${SUBJ}/func/sub-${SUBJ}_task-MGT_run-${RUN}_bold_confounds_reduced.txt\"
-INTERCEPT_EV=\"${BEHAVIORDIR}/intercept/${SUBJr}_${RUNr}_intercept.txt\"
-GAINS_EV=\"${BEHAVIORDIR}/mc_gain/${SUBJr}_${RUNr}_mc_gain.txt\"
-LOSSES_EV=\"${BEHAVIORDIR}/mc_loss/${SUBJr}_${RUNr}_mc_loss.txt\"
-ENTROPY_EV=\"${BEHAVIORDIR}/mc_entropy/${SUBJr}_${RUNr}_mc_entropy.txt\"
-SUBVAL_EV=\"${BEHAVIORDIR}/mc_subjective_value/${SUBJr}_${RUNr}_mc_subjective_value.txt\"
+INTERCEPT_EV=\"${BEHAVIORDIR2}/intercept/${SUBJr}_${RUNr}_intercept.txt\"
+GAINS_EV=\"${BEHAVIORDIR2}/mc_gain/${SUBJr}_${RUNr}_mc_gain.txt\"
+LOSSES_EV=\"${BEHAVIORDIR2}/mc_loss/${SUBJr}_${RUNr}_mc_loss.txt\"
+ENTROPY_EV=\"${BEHAVIORDIR2}/mc_entropy/${SUBJr}_${RUNr}_mc_entropy.txt\"
+SUBVAL_EV=\"${BEHAVIORDIR2}/mc_subjective_value/${SUBJr}_${RUNr}_mc_subjective_value.txt\"
 SUBVALY_EV=\"${BEHAVIORDIR2}/subjective_value_y/${SUBJr}_${RUNr}_subjective_value_y.txt\"
 CONFLICT_EV=\"${BEHAVIORDIR2}/model_conflict/${SUBJr}_${RUNr}_model_conflict.txt\"
+CHOSEN_EV=\"${BEHAVIORDIR2}/chosen/${SUBJr}_${RUNr}_chosen.txt\"
+CONFLICTBL_EV=\"${BEHAVIORDIR2}/model_conflict_bl/${SUBJr}_${RUNr}_model_conflict_bl.txt\" #bl for baseline timings
+CHOSENBL_EV=\"${BEHAVIORDIR2}/chosen_bl/${SUBJr}_${RUNr}_chosen_bl.txt\"
+PSTREAK_EV=\"${BEHAVIORDIR2}/prev_streak_length/${SUBJr}_${RUNr}_prev_streak_length.txt\"
+PCUMULCONFLICT_EV=\"${BEHAVIORDIR2}/prev_cumul_conflict/${SUBJr}_${RUNr}_prev_cumul_conflict.txt\"
+CONFLICTH_EV=\"${BEHAVIORDIR2}/model_conflict_high/${SUBJr}_${RUNr}_model_conflict.txt\"
+CONFLICTL_EV=\"${BEHAVIORDIR2}/model_conflict_low/${SUBJr}_${RUNr}_model_conflict.txt\"
+SUBVALPOS_EV=\"${BEHAVIORDIR2}/subval_pos/${SUBJr}_${RUNr}_subval_pos.txt\"
+SUBVALNEG_EV=\"${BEHAVIORDIR2}/subval_neg/${SUBJr}_${RUNr}_subval_neg.txt\"
 
 #Setup the current model
 #ev_names=(Intercept Gains Losses)
@@ -151,8 +162,14 @@ CONFLICT_EV=\"${BEHAVIORDIR2}/model_conflict/${SUBJr}_${RUNr}_model_conflict.txt
 #ev_names=(Intercept Gains Losses Entropy)
 #ev_paths=(${INTERCEPT_EV} ${GAINS_EV} ${LOSSES_EV} ${ENTROPY_EV})
 
+#ev_names=(Intercept SubVal Chosen) #SubVal is subjective value
+#ev_paths=(${INTERCEPT_EV} ${SUBVAL_EV} ${CHOSEN_EV})
+
 #ev_names=(Intercept SubVal Entropy) #SubVal is subjective value
 #ev_paths=(${INTERCEPT_EV} ${SUBVAL_EV} ${ENTROPY_EV})
+
+ev_names=(Intercept SubValPos SubValNeg Entropy) #SubVal is subjective value
+ev_paths=(${INTERCEPT_EV} ${SUBVALPOS_EV} ${SUBVALNEG_EV} ${ENTROPY_EV})
 
 #ev_names=(Intercept SubValY Entropy) #SubVal is subjective value
 #ev_paths=(${INTERCEPT_EV} ${SUBVALY_EV} ${ENTROPY_EV})
@@ -160,11 +177,29 @@ CONFLICT_EV=\"${BEHAVIORDIR2}/model_conflict/${SUBJr}_${RUNr}_model_conflict.txt
 #ev_names=(Intercept Conflict) #SubVal is subjective value
 #ev_paths=(${INTERCEPT_EV} ${CONFLICT_EV})
 
-ev_names=(Intercept Conflict SubVal) #SubVal is subjective value
-ev_paths=(${INTERCEPT_EV} ${CONFLICT_EV} ${SUBVAL_EV})
+#ev_names=(Intercept Conflict SubVal) #SubVal is subjective value
+#ev_paths=(${INTERCEPT_EV} ${CONFLICT_EV} ${SUBVAL_EV})
+
+#ev_names=(Intercept ConflictL ConflictH SubVal Chosen) #SubVal is subjective value
+#ev_paths=(${INTERCEPT_EV} ${CONFLICTL_EV} ${CONFLICTH_EV} ${SUBVAL_EV} ${CHOSEN_EV})
 
 #ev_names=(Intercept Conflict SubVal Entropy) #SubVal is subjective value
 #ev_paths=(${INTERCEPT_EV} ${CONFLICT_EV} ${SUBVAL_EV} ${ENTROPY_EV})
+
+#ev_names=(Intercept ConflictBL SubVal Entropy) #SubVal is subjective value
+#ev_paths=(${INTERCEPT_EV} ${CONFLICTBL_EV} ${SUBVAL_EV} ${ENTROPY_EV})
+
+#ev_names=(Intercept ConflictBL SubVal Entropy ChosenBL) #SubVal is subjective value
+#ev_paths=(${INTERCEPT_EV} ${CONFLICTBL_EV} ${SUBVAL_EV} ${ENTROPY_EV}  ${CHOSENBL_EV})
+
+#ev_names=(Intercept Conflict SubVal Entropy Chosen) #SubVal is subjective value
+#ev_paths=(${INTERCEPT_EV} ${CONFLICT_EV} ${SUBVAL_EV} ${ENTROPY_EV} ${CHOSEN_EV})
+
+#ev_names=(Intercept Conflict SubVal Entropy Chosen PrevStreak) #SubVal is subjective value
+#ev_paths=(${INTERCEPT_EV} ${CONFLICT_EV} ${SUBVAL_EV} ${ENTROPY_EV} ${CHOSEN_EV} ${PSTREAK_EV})
+
+#ev_names=(Intercept Conflict SubVal Entropy Chosen PCumConflict) #SubVal is subjective value
+#ev_paths=(${INTERCEPT_EV} ${CONFLICT_EV} ${SUBVAL_EV} ${ENTROPY_EV} ${CHOSEN_EV} ${PCUMULCONFLICT_EV})
 
 #ev_names=(Intercept Entropy) #SubVal is subjective value
 #ev_paths=(${INTERCEPT_EV} ${ENTROPY_EV})
