@@ -86,13 +86,15 @@ bdm2 = pwd + 'Folke_De_Martino_NHB_2016_Github/data/exp2_main_data.csv'
 
 #check NARPS correspondence
 narps_df = pd.read_csv(narps)
-narps_df['iDE'] = 1-narps_df['entropy']
+narps_df['iDE'] = -narps_df['entropy']
 subs = narps_df['ID'].unique()
 labels = ['strongly_accept','strongly_reject','weakly_accept','weakly_reject']
 
 all_mns = []
 i=0
 for sub in subs:
+    if sub == 13 or sub==25 or sub==30 or sub==56:
+        continue
     sub_df = narps_df[narps_df['ID']==sub]
     sub_df['zSV'] = (sub_df['subjective_value'] - sub_df['subjective_value'].mean())/sub_df['subjective_value'].std()
     sub_df['EV'] = (sub_df['gain'] - sub_df['loss'])/2
@@ -119,8 +121,20 @@ for sub in subs:
 all_mns = np.vstack(all_mns)
 #tiled_labels = np.tile(labels,(len(all_mns),1))
 #tiled_labels2 = tiled_labels[:,[1,3,2,0]]
-labels2 = ['Strongly Reject','Weakly Reject','Weakly Accept','Strongly Accept']
+labels2 = ['Strongly \n Reject','Weakly \n Reject','Weakly \n Accept','Strongly \n Accept']
 all_mns2 = all_mns[:,[1,3,2,0]]
+
+all_mns3 = []
+for i in range(4):
+    tmp0 = np.array([all_mns2[:,i]]).T
+    tmp = np.hstack( [ tmp0, np.tile(labels2[i], (len(all_mns2),1) ) ] )
+    all_mns3.append(tmp)
+
+all_mns3 = np.vstack(all_mns3)
+response_df = pd.DataFrame(all_mns3, columns=['Inverse decision entropy (iDE)','Participant response'])
+response_df['Inverse decision entropy (iDE)'] = pd.to_numeric(response_df['Inverse decision entropy (iDE)'], downcast="float", errors='coerce')
+response_df = response_df.dropna()
+
 
 print('Strong iDE')
 print(np.nanmean(all_mns2[:,[0,3]]))
@@ -131,6 +145,11 @@ print(np.nanmean(all_mns2[:,[1,2]]))
 print(np.nanstd(all_mns2[:,[1,2]]))
 
 stats.ttest_ind(all_mns2[:,[0,3]].flatten(),all_mns2[:,[1,2]].flatten(), nan_policy='omit',  equal_var = False)
+n1 = len(all_mns2[:,[0,3]].flatten()) - np.sum(np.isnan(all_mns2[:,[0,3]].flatten()))
+s1 = np.nanstd(all_mns2[:,[0,3]].flatten())
+n2 = len(all_mns2[:,[1,2]].flatten()) - np.sum(np.isnan(all_mns2[:,[1,2]].flatten()))
+s2 = np.nanstd(all_mns2[:,[1,2]].flatten())
+df = (( (s1**2/n1) + (s2**2/n2) )**2) / ( ((s1**2/n1)**2)/(n1-1) + ((s2**2/n2)**2)/(n2-1) )
 
 plot_response_conf = 0
 if plot_response_conf:
@@ -155,8 +174,6 @@ if plot_entropy:
     ax2.set_xlabel('Participant response')
     ax2.set_ylabel('Inverse decision entropy (iDE)')
     plt.show()
-'''
-
 
 plot_entropy = 0
 if plot_entropy:
@@ -173,8 +190,52 @@ if plot_entropy:
     ax2.set_xlabel('Participant response')
     ax2.set_ylabel('Inverse decision entropy (iDE)')
     plt.show()
+'''
 
-plot_entropy = 1
+plot_entropy = 0
+if plot_entropy:
+    tmp_x = narps_df['p_accept']
+    bins = np.linspace(0, 1, 20)
+    digitized = np.digitize(tmp_x, bins)-1
+    bin_means = [tmp_x[digitized == i].mean() for i in range(1, len(bins))]
+    unique_elements, counts_elements = np.unique(digitized, return_counts=True)
+    print("Frequency of unique values of the said array:")
+    print(np.asarray((unique_elements, counts_elements)))
+    density_norm = counts_elements/counts_elements.max()
+    density_norm_vals = density_norm[digitized]
+    alphas = density_norm_vals # np.linspace(0,1,len(tmp_x)) #
+    rgba_colors = np.zeros((len(tmp_x),4))
+    #rgba_colors[:,0] = 0.1 #1-alphas*0.5 # alphas #1.0
+    #rgba_colors[:,1] = 0.5 #1-alphas*0.5 # alphas #1.0
+    # for blue the third column needs to be one
+    rgba_colors[:,2] = 1-alphas*0.5 # 1.0 #
+    # the fourth column needs to be your alphas
+    rgba_colors[:, 3] = alphas
+    plt.rcParams.update({'font.size': 18})
+    fig = plt.figure(num=None, figsize=(20,10), dpi=100, facecolor='w', edgecolor='k')
+    ax = fig.add_subplot(121)
+    params = {'mathtext.default': 'regular' }
+    plt.rcParams.update(params)
+    ax.scatter(narps_df['p_accept'],-narps_df['entropy'] , color=rgba_colors) #+ np.random.normal(0,0.1,len(tmp_x))
+    ax.set_ylim(-1.2,0.2)
+    yticks = ax.yaxis.get_major_ticks()
+    yticks[-1].set_visible(False)
+    yticks[0].set_visible(False)
+    ax.set_xlabel('$p_{accept}$')
+    ax.set_ylabel('Inverse decision entropy (iDE)')
+    ax.text(0.01, 0.99, 'a', transform=ax.transAxes,
+      fontsize=16, fontweight='bold', va='top')
+    ax2 = fig.add_subplot(122)
+    sns.violinplot(x='Participant response', y='Inverse decision entropy (iDE)', data=response_df, color="0.8", ax=ax2)
+    sns.stripplot(x='Participant response', y='Inverse decision entropy (iDE)', data=response_df, jitter=True, zorder=1, ax=ax2)
+    yticks2 = ax2.yaxis.get_major_ticks()
+    yticks2[-2].set_visible(False)
+    ax2.text(0.01, 0.99, 'b', transform=ax2.transAxes,
+      fontsize=16, fontweight='bold', va='top')
+    plt.subplots_adjust(left=0.1, right=0.9, top=0.96, bottom=0.16, wspace=0.265)
+    plt.show()
+
+plot_entropy = 0
 if plot_entropy:
     i=1
     fig = plt.figure(num=None, figsize=(20,10), dpi=100, facecolor='w', edgecolor='k')
@@ -464,9 +525,9 @@ print(pearsonr(nlls,nlls2))
 narps = pwd + 'NARPS/participants_and_model.csv'
 narps_df = pd.read_csv(narps)
 narps_df['iDE'] = -narps_df['entropy']
-narps_df['p(correct)'] = -narps_df['model_conflict']
+narps_df[r'$p_{correct}$'] = -narps_df['model_conflict']
 narps_df['SV'] = narps_df['subjective_value']
-narps_df['p(accept)'] = narps_df['p_accept']
+narps_df[r'$p_{accept}$'] = narps_df['p_accept']
 subs = narps_df['ID'].unique()
 narps_ortho_corrs = []
 narps_ortho_corrs2 = []
@@ -474,13 +535,15 @@ narps_ortho_corrs3 = []
 narps_ortho_corrs4 = []
 i = 0
 for sub in subs:
+    if sub == 13 or sub==25 or sub==30 or sub==56:
+        continue
     sub_df = narps_df[narps_df['ID']==sub]
-    sub_df = sub_df[['SV','p(accept)','iDE','p(correct)']] #.drop(columns=['Unnamed: 0','ID','trial_num','RT'])
+    sub_df = sub_df[['SV',r'$p_{accept}$','iDE',r'$p_{correct}$']] #.drop(columns=['Unnamed: 0','ID','trial_num','RT'])
     sub_corr_mat = sub_df.corr(method='spearman')
     narps_ortho_corrs.append(spearmanr(sub_df['SV'],sub_df['iDE'])[0])
-    narps_ortho_corrs2.append(spearmanr(sub_df['p(accept)'],sub_df['iDE'])[0])
-    narps_ortho_corrs3.append(spearmanr(sub_df['SV'],sub_df['p(accept)'])[0])
-    narps_ortho_corrs4.append(spearmanr(sub_df['iDE'],sub_df['p(correct)'])[0])
+    narps_ortho_corrs2.append(spearmanr(sub_df[r'$p_{accept}$'],sub_df['iDE'])[0])
+    narps_ortho_corrs3.append(spearmanr(sub_df['SV'],sub_df[r'$p_{accept}$'])[0])
+    narps_ortho_corrs4.append(spearmanr(sub_df['iDE'],sub_df[r'$p_{correct}$'])[0])
     if i==0:
         all_sub_corr_mats = sub_corr_mat
     else:
@@ -513,22 +576,25 @@ fig = plt.figure(num=None, figsize=(30,10), dpi=100, facecolor='w', edgecolor='k
 ax0 = fig.add_subplot(131)
 sns.heatmap(all_sub_corr_mats,
         xticklabels=all_sub_corr_mats.columns,
-        yticklabels=all_sub_corr_mats.columns, annot = True, ax = ax0)
+        yticklabels=all_sub_corr_mats.columns, annot = True, ax = ax0, vmin=-0.2, vmax=1)
 plt.title('NARPS')
+plt.xticks(rotation=45)
+plt.yticks(rotation=45)
 #plt.show()
 
 #check correlation matrix for BDM values
 auction_df = pd.read_csv(pwd + 'Folke_De_Martino_NHB_2016_Github/data/exp1_main_data2.csv')
+auction_df[r'$p_{correct}$'] = auction_df['p(correct)']
 subs = auction_df['ID'].unique()
 i = 0
 bdm_ortho_corrs = []
 bdm_ortho_corrs2 = []
 for sub in subs:
     sub_df = auction_df[auction_df['ID']==sub]
-    sub_df = sub_df[['DV','iDE','confidence','p(correct)']] #.drop(columns=['Unnamed: 0','ID','trial_num','RT'])
+    sub_df = sub_df[['DV','iDE','confidence',r'$p_{correct}$']] #.drop(columns=['Unnamed: 0','ID','trial_num','RT'])
     sub_corr_mat = sub_df.corr(method='spearman')
     bdm_ortho_corrs.append(spearmanr(sub_df['confidence'],sub_df['iDE'])[0])
-    bdm_ortho_corrs2.append(spearmanr(sub_df['p(correct)'],sub_df['iDE'])[0])
+    bdm_ortho_corrs2.append(spearmanr(sub_df[r'$p_{correct}$'],sub_df['iDE'])[0])
     if i==0:
         all_sub_corr_mats = sub_corr_mat
     else:
@@ -551,16 +617,19 @@ all_sub_corr_mats = all_sub_corr_mats/i
 ax = fig.add_subplot(132)
 sns.heatmap(all_sub_corr_mats,
         xticklabels=all_sub_corr_mats.columns,
-        yticklabels=all_sub_corr_mats.columns, annot = True, ax = ax)
-plt.title('BDM values')
+        yticklabels=all_sub_corr_mats.columns, annot = True, ax = ax, vmin=-0.2, vmax=1)
+plt.title('Elicited BDM values')
+plt.xticks(rotation=45)
+plt.yticks(rotation=45)
 
 #check correlation matrix for estimated values
 estim_bdm_df = pd.read_csv(pwd + 'Folke_De_Martino_NHB_2016_Github/data/exp1_main_data2_estim_bdmvals.csv')
+estim_bdm_df[r'$p_{correct}$'] = estim_bdm_df['p(correct)']
 subs = estim_bdm_df['ID'].unique()
 i = 0
 for sub in subs:
     sub_df = estim_bdm_df[estim_bdm_df['ID']==sub]
-    sub_df = sub_df[['DV','iDE','confidence','p(correct)']] #.drop(columns=['Unnamed: 0','ID','trial_num','RT'])
+    sub_df = sub_df[['DV','iDE','confidence',r'$p_{correct}$']] #.drop(columns=['Unnamed: 0','ID','trial_num','RT'])
     sub_corr_mat = sub_df.corr(method='spearman')
     if i==0:
         all_sub_corr_mats = sub_corr_mat
@@ -573,8 +642,10 @@ all_sub_corr_mats = all_sub_corr_mats/i
 ax2 = fig.add_subplot(133)
 sns.heatmap(all_sub_corr_mats,
         xticklabels=all_sub_corr_mats.columns,
-        yticklabels=all_sub_corr_mats.columns, annot = True, ax = ax2)
+        yticklabels=all_sub_corr_mats.columns, annot = True, ax = ax2, vmin=-0.2, vmax=1)
 plt.title('Estimated BDM values')
+plt.xticks(rotation=45)
+plt.yticks(rotation=45)
 plt.show()
 
 #check BDM correlations together
